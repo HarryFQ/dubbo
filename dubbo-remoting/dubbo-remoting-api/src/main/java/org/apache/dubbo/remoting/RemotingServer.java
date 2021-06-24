@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.remoting;
 
-import org.apache.dubbo.common.Parameters;
 import org.apache.dubbo.common.Resetable;
 
 import java.net.InetSocketAddress;
@@ -54,6 +53,6 @@ public interface RemotingServer extends Endpoint, Resetable, IdleSensible {
     Channel getChannel(InetSocketAddress remoteAddress);
 
     @Deprecated
-    void reset(Parameters parameters);
+    void reset(org.apache.dubbo.common.Parameters parameters);
 
 }

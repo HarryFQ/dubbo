@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.remoting.exchange.support.header;
 
-import org.apache.dubbo.common.Parameters;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.Version;
 import org.apache.dubbo.common.logger.Logger;
@@ -104,12 +103,13 @@ public class HeaderExchangeServer implements ExchangeServer {
     public void close(final int timeout) {
         startClose();
         if (timeout > 0) {
-            final long max = timeout;
+            final long max = (long) timeout;
             final long start = System.currentTimeMillis();
             if (getUrl().getParameter(Constants.CHANNEL_SEND_READONLYEVENT_KEY, true)) {
                 sendChannelReadOnlyEvent();
             }
-            while (isRunning() && System.currentTimeMillis() - start < max) {
+            while (HeaderExchangeServer.this.isRunning()
+                    && System.currentTimeMillis() - start < max) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -225,7 +225,7 @@ public class HeaderExchangeServer implements ExchangeServer {
 
     @Override
     @Deprecated
-    public void reset(Parameters parameters) {
+    public void reset(org.apache.dubbo.common.Parameters parameters) {
         reset(getUrl().addParameters(parameters.getParameters()));
     }
 

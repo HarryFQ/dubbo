@@ -17,6 +17,8 @@
 package org.apache.dubbo.registry.multicast;
 
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ConcurrentHashSet;
 import org.apache.dubbo.common.utils.ExecutorUtil;
@@ -66,6 +68,9 @@ import static org.apache.dubbo.registry.Constants.UNSUBSCRIBE;
  * MulticastRegistry
  */
 public class MulticastRegistry extends FailbackRegistry {
+
+    // logging output
+    private static final Logger logger = LoggerFactory.getLogger(MulticastRegistry.class);
 
     private static final int DEFAULT_MULTICAST_PORT = 1234;
 
@@ -333,7 +338,7 @@ public class MulticastRegistry extends FailbackRegistry {
                 if (urls != null) {
                     urls.remove(url);
                 }
-                if (CollectionUtils.isEmpty(urls)) {
+                if (urls == null || urls.isEmpty()) {
                     if (urls == null) {
                         urls = new ConcurrentHashSet<URL>();
                     }

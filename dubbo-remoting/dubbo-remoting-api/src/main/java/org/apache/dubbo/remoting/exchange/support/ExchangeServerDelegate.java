@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.remoting.exchange.support;
 
-import org.apache.dubbo.common.Parameters;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.ChannelHandler;
@@ -61,7 +60,7 @@ public class ExchangeServerDelegate implements ExchangeServer {
 
     @Override
     @Deprecated
-    public void reset(Parameters parameters) {
+    public void reset(org.apache.dubbo.common.Parameters parameters) {
         reset(getUrl().addParameters(parameters.getParameters()));
     }
 

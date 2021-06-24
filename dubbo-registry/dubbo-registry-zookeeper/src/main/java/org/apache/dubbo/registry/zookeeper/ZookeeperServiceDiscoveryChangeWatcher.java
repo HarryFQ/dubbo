@@ -39,8 +39,6 @@ public class ZookeeperServiceDiscoveryChangeWatcher implements CuratorWatcher {
 
     private final ZookeeperServiceDiscovery zookeeperServiceDiscovery;
 
-    private volatile boolean keepWatching = true;
-
     private final String serviceName;
 
     public ZookeeperServiceDiscoveryChangeWatcher(ZookeeperServiceDiscovery zookeeperServiceDiscovery,
@@ -57,20 +55,9 @@ public class ZookeeperServiceDiscoveryChangeWatcher implements CuratorWatcher {
         Watcher.Event.EventType eventType = event.getType();
 
         if (NodeChildrenChanged.equals(eventType) || NodeDataChanged.equals(eventType)) {
-            if (shouldKeepWatching()) {
-                listener.onEvent(new ServiceInstancesChangedEvent(serviceName, zookeeperServiceDiscovery.getInstances(serviceName)));
-                zookeeperServiceDiscovery.registerServiceWatcher(serviceName, listener);
-                // only the current registry will be queried, which may be pushed empty.
-                // zookeeperServiceDiscovery.dispatchServiceInstancesChangedEvent(serviceName);
-            }
+            listener.onEvent(new ServiceInstancesChangedEvent(serviceName, zookeeperServiceDiscovery.getInstances(serviceName)));
+            zookeeperServiceDiscovery.registerServiceWatcher(serviceName, listener);
+            zookeeperServiceDiscovery.dispatchServiceInstancesChangedEvent(serviceName);
         }
-    }
-
-    public boolean shouldKeepWatching() {
-        return keepWatching;
-    }
-
-    public void stopWatching() {
-        this.keepWatching = false;
     }
 }

@@ -18,7 +18,6 @@ package org.apache.dubbo.remoting.handler;
 
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.transport.dispatcher.WrappedChannelHandler;
@@ -61,7 +60,7 @@ public class WrappedChannelHandlerTest {
                 clazz = clazz.getSuperclass();
             }
             if (field != null) {
-                ReflectUtils.makeAccessible(field);
+                field.setAccessible(true);
                 return field.get(obj);
             } else {
                 throw new NoSuchFieldException();

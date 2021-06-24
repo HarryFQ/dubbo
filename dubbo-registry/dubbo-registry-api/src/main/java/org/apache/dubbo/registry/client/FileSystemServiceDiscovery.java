@@ -54,13 +54,15 @@ import static org.apache.dubbo.common.config.configcenter.file.FileSystemDynamic
  * @see FileSystemDynamicConfiguration
  * @since 2.7.5
  */
-public class FileSystemServiceDiscovery extends AbstractServiceDiscovery implements EventListener<ServiceInstancesChangedEvent> {
+public class FileSystemServiceDiscovery implements ServiceDiscovery, EventListener<ServiceInstancesChangedEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<File, FileLock> fileLocksCache = new ConcurrentHashMap<>();
 
     private FileSystemDynamicConfiguration dynamicConfiguration;
+
+    private ServiceInstance serviceInstance;
 
     @Override
     public void onEvent(ServiceInstancesChangedEvent event) {
@@ -134,7 +136,13 @@ public class FileSystemServiceDiscovery extends AbstractServiceDiscovery impleme
     }
 
     @Override
-    public void doRegister(ServiceInstance serviceInstance) {
+    public ServiceInstance getLocalInstance() {
+        return serviceInstance;
+    }
+
+    @Override
+    public void register(ServiceInstance serviceInstance) throws RuntimeException {
+        this.serviceInstance = serviceInstance;
         String serviceInstanceId = getServiceInstanceId(serviceInstance);
         String serviceName = getServiceName(serviceInstance);
         String content = toJSONString(serviceInstance);
@@ -166,9 +174,8 @@ public class FileSystemServiceDiscovery extends AbstractServiceDiscovery impleme
         });
     }
 
-
     @Override
-    public void doUpdate(ServiceInstance serviceInstance) {
+    public void update(ServiceInstance serviceInstance) throws RuntimeException {
         register(serviceInstance);
     }
 

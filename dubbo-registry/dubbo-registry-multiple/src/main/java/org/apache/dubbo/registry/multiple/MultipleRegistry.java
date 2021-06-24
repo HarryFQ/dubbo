@@ -20,8 +20,6 @@ package org.apache.dubbo.registry.multiple;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.ExtensionLoader;
-import org.apache.dubbo.common.logger.Logger;
-import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.dubbo.registry.Registry;
@@ -42,8 +40,6 @@ import static org.apache.dubbo.common.constants.RegistryConstants.EMPTY_PROTOCOL
  * MultipleRegistry
  */
 public class MultipleRegistry extends AbstractRegistry {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultipleRegistry.class);
 
     public static final String REGISTRY_FOR_SERVICE = "service-registry";
     public static final String REGISTRY_FOR_REFERENCE = "reference-registry";
@@ -75,7 +71,7 @@ public class MultipleRegistry extends AbstractRegistry {
         this.applicationName = url.getParameter(CommonConstants.APPLICATION_KEY);
         init();
         checkApplicationName(this.applicationName);
-        // This urls contain parameter and it do not inherit from the parameter of url in MultipleRegistry
+        // This urls contain parameter and it donot inherit from the parameter of url in MultipleRegistry
 
         Map<String, Registry> registryMap = new HashMap<>();
         if (initServiceRegistry) {
@@ -94,7 +90,7 @@ public class MultipleRegistry extends AbstractRegistry {
                 serviceRegistries.put(tmpUrl, registryMap.get(tmpUrl));
                 continue;
             }
-            Registry registry = getRegistry(URL.valueOf(tmpUrl));
+            Registry registry = registryFactory.getRegistry(URL.valueOf(tmpUrl));
             registryMap.put(tmpUrl, registry);
             serviceRegistries.put(tmpUrl, registry);
         }
@@ -108,20 +104,12 @@ public class MultipleRegistry extends AbstractRegistry {
                 referenceRegistries.put(tmpUrl, registryMap.get(tmpUrl));
                 continue;
             }
-            Registry registry = getRegistry(URL.valueOf(tmpUrl));
+            Registry registry = registryFactory.getRegistry(URL.valueOf(tmpUrl));
             registryMap.put(tmpUrl, registry);
             referenceRegistries.put(tmpUrl, registry);
         }
     }
 
-    protected Registry getRegistry(URL url) {
-        try {
-            return registryFactory.getRegistry(url);
-        } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
-            throw t;
-        }
-    }
 
     @Override
     public URL getUrl() {
@@ -130,7 +118,7 @@ public class MultipleRegistry extends AbstractRegistry {
 
     @Override
     public boolean isAvailable() {
-        boolean available = serviceRegistries.isEmpty();
+        boolean available = serviceRegistries.isEmpty() ? true : false;
         for (Registry serviceRegistry : serviceRegistries.values()) {
             if (serviceRegistry.isAvailable()) {
                 available = true;
@@ -140,7 +128,7 @@ public class MultipleRegistry extends AbstractRegistry {
             return false;
         }
 
-        available = referenceRegistries.isEmpty();
+        available = referenceRegistries.isEmpty() ? true : false;
         for (Registry referenceRegistry : referenceRegistries.values()) {
             if (referenceRegistry.isAvailable()) {
                 available = true;

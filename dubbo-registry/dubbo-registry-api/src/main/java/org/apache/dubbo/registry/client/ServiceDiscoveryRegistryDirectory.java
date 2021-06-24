@@ -24,6 +24,7 @@ import org.apache.dubbo.common.utils.Assert;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.registry.AddressListener;
+import org.apache.dubbo.registry.NotifyListener;
 import org.apache.dubbo.registry.client.event.listener.ServiceInstancesChangedListener;
 import org.apache.dubbo.registry.integration.DynamicDirectory;
 import org.apache.dubbo.rpc.Invoker;
@@ -41,7 +42,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DISABLED_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.ENABLED_KEY;
 import static org.apache.dubbo.common.constants.RegistryConstants.EMPTY_PROTOCOL;
 
-public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> {
+public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> implements NotifyListener {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryRegistryDirectory.class);
 
     // instance address to invoker mapping.
@@ -126,9 +127,6 @@ public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> {
                 logger.warn("destroyUnusedInvokers error. ", e);
             }
         }
-
-        // notify invokers refreshed
-        this.invokersChanged();
     }
 
     /**
@@ -139,7 +137,7 @@ public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> {
      */
     private Map<String, Invoker<T>> toInvokers(List<URL> urls) {
         Map<String, Invoker<T>> newUrlInvokerMap = new HashMap<>();
-        if (CollectionUtils.isEmpty(urls)) {
+        if (urls == null || urls.isEmpty()) {
             return newUrlInvokerMap;
         }
         for (URL url : urls) {
@@ -201,8 +199,7 @@ public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> {
     /**
      * Close all invokers
      */
-    @Override
-    protected void destroyAllInvokers() {
+    private void destroyAllInvokers() {
         Map<String, Invoker<T>> localUrlInvokerMap = this.urlInvokerMap; // local reference
         if (localUrlInvokerMap != null) {
             for (Invoker<T> invoker : new ArrayList<>(localUrlInvokerMap.values())) {
@@ -259,6 +256,36 @@ public class ServiceDiscoveryRegistryDirectory<T> extends DynamicDirectory<T> {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (isDestroyed()) {
+            return;
+        }
+
+        // unregister.
+        try {
+            if (getRegisteredConsumerUrl() != null && registry != null && registry.isAvailable()) {
+                registry.unregister(getRegisteredConsumerUrl());
+            }
+        } catch (Throwable t) {
+            logger.warn("unexpected error when unregister service " + serviceKey + "from registry" + registry.getUrl(), t);
+        }
+        // unsubscribe.
+        try {
+            if (getConsumerUrl() != null && registry != null && registry.isAvailable()) {
+                registry.unsubscribe(getConsumerUrl(), this);
+            }
+        } catch (Throwable t) {
+            logger.warn("unexpected error when unsubscribe service " + serviceKey + "from registry" + registry.getUrl(), t);
+        }
+        super.destroy(); // must be executed after unsubscribing
+        try {
+            destroyAllInvokers();
+        } catch (Throwable t) {
+            logger.warn("Failed to destroy service " + serviceKey, t);
         }
     }
 }

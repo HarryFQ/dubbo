@@ -261,7 +261,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
     }
 
     private Request getRequestWithoutData() {
-        Request newRequest = request.copy();
+        Request newRequest = request;
         newRequest.setData(null);
         return newRequest;
     }

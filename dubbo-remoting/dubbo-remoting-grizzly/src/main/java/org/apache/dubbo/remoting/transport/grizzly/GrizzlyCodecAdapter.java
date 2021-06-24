@@ -128,8 +128,10 @@ public class GrizzlyCodecAdapter extends BaseFilter {
                         }
                         if (msg != null) {
                             context.setMessage(msg);
+                            return context.getInvokeAction();
+                        } else {
+                            return context.getInvokeAction();
                         }
-                        return context.getInvokeAction();
                     }
                 } while (frame.readable());
             } else { // Other events are passed down directly

@@ -29,8 +29,6 @@ import org.apache.dubbo.remoting.telnet.support.Help;
 @Help(parameter = "[lines]", summary = "Clear screen.", detail = "Clear screen.")
 public class ClearTelnetHandler implements TelnetHandler {
 
-    private static final int MAX_LINES = 1000;
-
     @Override
     public String telnet(Channel channel, String message) {
         int lines = 100;
@@ -38,7 +36,7 @@ public class ClearTelnetHandler implements TelnetHandler {
             if (!StringUtils.isInteger(message)) {
                 return "Illegal lines " + message + ", must be integer.";
             }
-            lines = Math.min(MAX_LINES,Integer.parseInt(message));
+            lines = Integer.parseInt(message);
         }
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < lines; i++) {

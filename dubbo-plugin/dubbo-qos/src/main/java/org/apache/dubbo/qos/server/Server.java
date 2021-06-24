@@ -26,7 +26,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import org.apache.dubbo.remoting.transport.netty4.NettyEventLoopFactory;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -82,11 +85,11 @@ public class Server {
         if (!started.compareAndSet(false, true)) {
             return;
         }
-        boss = NettyEventLoopFactory.eventLoopGroup(1, "qos-boss");
-        worker = NettyEventLoopFactory.eventLoopGroup(0, "qos-worker");
+        boss = new NioEventLoopGroup(1, new DefaultThreadFactory("qos-boss", true));
+        worker = new NioEventLoopGroup(0, new DefaultThreadFactory("qos-worker", true));
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(boss, worker);
-        serverBootstrap.channel(NettyEventLoopFactory.serverSocketChannelClass());
+        serverBootstrap.channel(NioServerSocketChannel.class);
         serverBootstrap.option(ChannelOption.SO_REUSEADDR, true);
         serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         serverBootstrap.childHandler(new ChannelInitializer<Channel>() {

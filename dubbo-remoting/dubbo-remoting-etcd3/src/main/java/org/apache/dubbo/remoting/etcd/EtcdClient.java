@@ -81,7 +81,7 @@ public interface EtcdClient {
      * register children listener for specified path.
      *
      * @param path     the path to be watched when children is added, delete or update.
-     * @param listener when children is changed , listener will be triggered.
+     * @param listener when children is changed , listener will be trigged.
      * @return direct children directory, contains zero element
      * list if children directory not exists.
      */
@@ -91,7 +91,7 @@ public interface EtcdClient {
      * find watcher of the children listener for specified path.
      *
      * @param path     the path to be watched when children is added, delete or update.
-     * @param listener when children is changed , listener will be triggered.
+     * @param listener when children is changed , listener will be trigged.
      * @return watcher if find else null
      */
     <T> T getChildListener(String path, ChildListener listener);
@@ -100,7 +100,7 @@ public interface EtcdClient {
      * unregister children lister for specified path.
      *
      * @param path     the path to be unwatched .
-     * @param listener when children is changed , lister will be triggered.
+     * @param listener when children is changed , lister will be trigged.
      */
     void removeChildListener(String path, ChildListener listener);
 

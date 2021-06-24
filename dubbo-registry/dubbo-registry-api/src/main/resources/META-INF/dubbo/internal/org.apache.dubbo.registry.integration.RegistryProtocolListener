@@ -1,1 +1,1 @@
-migration=org.apache.dubbo.registry.client.migration.MigrationRuleListener
+service-discovery=org.apache.dubbo.registry.client.ServiceDiscoveryRegistryProtocolListener

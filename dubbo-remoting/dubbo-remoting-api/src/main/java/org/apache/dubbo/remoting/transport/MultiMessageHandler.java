@@ -16,20 +16,16 @@
  */
 package org.apache.dubbo.remoting.transport;
 
-import org.apache.dubbo.common.logger.Logger;
-import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.ChannelHandler;
-import org.apache.dubbo.remoting.ExecutionException;
 import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.exchange.support.MultiMessage;
 
 /**
+ *
  * @see MultiMessage
  */
 public class MultiMessageHandler extends AbstractChannelHandlerDelegate {
-
-    protected static final Logger logger = LoggerFactory.getLogger(MultiMessageHandler.class);
 
     public MultiMessageHandler(ChannelHandler handler) {
         super(handler);
@@ -41,12 +37,7 @@ public class MultiMessageHandler extends AbstractChannelHandlerDelegate {
         if (message instanceof MultiMessage) {
             MultiMessage list = (MultiMessage) message;
             for (Object obj : list) {
-                try {
-                    handler.received(channel, obj);
-                } catch (ExecutionException e) {
-                    logger.error("MultiMessageHandler received fail.", e);
-                    handler.caught(channel, e);
-                }
+                handler.received(channel, obj);
             }
         } else {
             handler.received(channel, message);

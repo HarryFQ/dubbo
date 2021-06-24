@@ -34,7 +34,6 @@
 package org.apache.dubbo.remoting.etcd.jetcd;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.remoting.etcd.ChildListener;
 
 import com.google.protobuf.ByteString;
@@ -415,10 +414,10 @@ public class JEtcdClientTest {
         try {
             // hack, use reflection to get the shared channel.
             Field connectionField = client.getClass().getDeclaredField("connectionManager");
-            ReflectUtils.makeAccessible(connectionField);
+            connectionField.setAccessible(true);
             Object connection = connectionField.get(client);
             Method channelMethod = connection.getClass().getDeclaredMethod("getChannel");
-            ReflectUtils.makeAccessible(channelMethod);
+            channelMethod.setAccessible(true);
             ManagedChannel channel = (ManagedChannel) channelMethod.invoke(connection);
             return channel;
         } catch (Exception e) {

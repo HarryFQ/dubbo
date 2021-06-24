@@ -44,7 +44,7 @@ public class LogTelnetHandler implements TelnetHandler {
     public String telnet(Channel channel, String message) {
         long size;
         File file = LoggerFactory.getFile();
-        StringBuilder buf = new StringBuilder();
+        StringBuffer buf = new StringBuffer();
         if (message == null || message.trim().length() == 0) {
             buf.append("EXAMPLE: log error / log 100");
         } else {

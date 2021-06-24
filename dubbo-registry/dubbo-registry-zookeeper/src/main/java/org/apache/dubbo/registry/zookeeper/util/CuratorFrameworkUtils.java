@@ -58,7 +58,7 @@ public abstract class CuratorFrameworkUtils {
 
     public static CuratorFramework buildCuratorFramework(URL connectionURL) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
-                .connectString(connectionURL.getBackupAddress())
+                .connectString(connectionURL.getIp() + ":" + connectionURL.getPort())
                 .retryPolicy(buildRetryPolicy(connectionURL))
                 .build();
         curatorFramework.start();

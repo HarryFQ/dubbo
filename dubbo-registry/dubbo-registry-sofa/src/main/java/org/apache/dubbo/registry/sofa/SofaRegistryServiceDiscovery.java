@@ -22,8 +22,8 @@ import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.common.utils.DefaultPage;
 import org.apache.dubbo.common.utils.Page;
-import org.apache.dubbo.registry.client.AbstractServiceDiscovery;
 import org.apache.dubbo.registry.client.DefaultServiceInstance;
+import org.apache.dubbo.registry.client.ServiceDiscovery;
 import org.apache.dubbo.registry.client.ServiceInstance;
 import org.apache.dubbo.registry.client.event.ServiceInstancesChangedEvent;
 import org.apache.dubbo.registry.client.event.listener.ServiceInstancesChangedListener;
@@ -53,12 +53,10 @@ import static org.apache.dubbo.registry.sofa.SofaRegistryConstants.ADDRESS_WAIT_
 import static org.apache.dubbo.registry.sofa.SofaRegistryConstants.LOCAL_DATA_CENTER;
 import static org.apache.dubbo.registry.sofa.SofaRegistryConstants.LOCAL_REGION;
 
-
-public class SofaRegistryServiceDiscovery extends AbstractServiceDiscovery {
-
+public class SofaRegistryServiceDiscovery implements ServiceDiscovery {
     private static final Logger LOGGER = LoggerFactory.getLogger(SofaRegistryServiceDiscovery.class);
 
-    private static final String DEFAULT_GROUP = "dubbo";
+    private static  final String DEFAULT_GROUP = "dubbo";
 
     private URL registryURL;
 
@@ -102,7 +100,7 @@ public class SofaRegistryServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doRegister(ServiceInstance serviceInstance) {
+    public void register(ServiceInstance serviceInstance) throws RuntimeException {
         SofaRegistryInstance sofaRegistryInstance = new SofaRegistryInstance(serviceInstance.getId(), serviceInstance.getHost(), serviceInstance.getPort(), serviceInstance.getServiceName(), serviceInstance.getMetadata());
         Publisher publisher = publishers.get(serviceInstance.getServiceName());
         this.serviceInstance = serviceInstance;
@@ -118,7 +116,7 @@ public class SofaRegistryServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doUpdate(ServiceInstance serviceInstance) {
+    public void update(ServiceInstance serviceInstance) throws RuntimeException {
         register(serviceInstance);
     }
 
@@ -167,7 +165,7 @@ public class SofaRegistryServiceDiscovery extends AbstractServiceDiscovery {
             List<String> datas = getUserData(dataId, userData);
             List<ServiceInstance> serviceInstances = new ArrayList<>(datas.size());
 
-            for (String serviceData : datas) {
+            for (String  serviceData : datas) {
                 SofaRegistryInstance sri = gson.fromJson(serviceData, SofaRegistryInstance.class);
 
                 DefaultServiceInstance serviceInstance = new DefaultServiceInstance(sri.getId(), dataId, sri.getHost(), sri.getPort());
@@ -242,9 +240,14 @@ public class SofaRegistryServiceDiscovery extends AbstractServiceDiscovery {
         return result;
     }
 
+    @Override
+    public ServiceInstance getLocalInstance() {
+        return serviceInstance;
+    }
+
     /**
-     * @return
      * @TODO 后续确认下
+     * @return
      */
     @Override
     public Set<String> getServices() {

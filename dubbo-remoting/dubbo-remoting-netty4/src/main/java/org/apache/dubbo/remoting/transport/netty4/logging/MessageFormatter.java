@@ -197,7 +197,7 @@ final class MessageFormatter {
                             throwableCandidate);
                 }
             } else {
-                if (isEscapedDelimiter(messagePattern, j)) {
+                if (isEscapedDelimeter(messagePattern, j)) {
                     if (!isDoubleEscaped(messagePattern, j)) {
                         l--; // DELIM_START was escaped, thus should not be incremented
                         sbuf.append(messagePattern, i, j - 1);
@@ -228,18 +228,18 @@ final class MessageFormatter {
         }
     }
 
-    static boolean isEscapedDelimiter(String messagePattern,
-                                      int delimiterStartIndex) {
+    static boolean isEscapedDelimeter(String messagePattern,
+                                      int delimeterStartIndex) {
 
-        if (delimiterStartIndex == 0) {
+        if (delimeterStartIndex == 0) {
             return false;
         }
-        return messagePattern.charAt(delimiterStartIndex - 1) == ESCAPE_CHAR;
+        return messagePattern.charAt(delimeterStartIndex - 1) == ESCAPE_CHAR;
     }
 
     static boolean isDoubleEscaped(String messagePattern,
-                                   int delimiterStartIndex) {
-        return delimiterStartIndex >= 2 && messagePattern.charAt(delimiterStartIndex - 2) == ESCAPE_CHAR;
+                                   int delimeterStartIndex) {
+        return delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
     }
 
     // special treatment of array values was suggested by 'lizongbo'

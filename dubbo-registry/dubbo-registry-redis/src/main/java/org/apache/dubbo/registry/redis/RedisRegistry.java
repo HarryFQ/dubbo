@@ -18,6 +18,8 @@ package org.apache.dubbo.registry.redis;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.URLBuilder;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ExecutorUtil;
 import org.apache.dubbo.common.utils.NamedThreadFactory;
@@ -75,7 +77,9 @@ import static org.apache.dubbo.registry.Constants.UNREGISTER;
  */
 public class RedisRegistry extends FailbackRegistry {
 
-    private static final String DEFAULT_ROOT = "dubbo";
+    private static final Logger logger = LoggerFactory.getLogger(RedisRegistry.class);
+
+    private final static String DEFAULT_ROOT = "dubbo";
 
     private final ScheduledExecutorService expireExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("DubboRegistryExpireTimer", true));
 
@@ -92,11 +96,6 @@ public class RedisRegistry extends FailbackRegistry {
     private final int expirePeriod;
 
     private volatile boolean admin = false;
-
-    private final Map<URL, Long> expireCache = new ConcurrentHashMap<>();
-
-    // just for unit test
-    private volatile boolean doExpire = true;
 
     public RedisRegistry(URL url) {
         super(url);
@@ -142,15 +141,6 @@ public class RedisRegistry extends FailbackRegistry {
                 }
             }
         }
-
-        if (doExpire) {
-            for (Map.Entry<URL, Long> expireEntry : expireCache.entrySet()) {
-                if (expireEntry.getValue() < System.currentTimeMillis()) {
-                    doNotify(toCategoryPath(expireEntry.getKey()));
-                }
-            }
-        }
-
         if (admin) {
             clean();
         }
@@ -304,26 +294,16 @@ public class RedisRegistry extends FailbackRegistry {
                 continue;
             }
             List<URL> urls = new ArrayList<>();
-            Set<URL> toDeleteExpireKeys = new HashSet<>(expireCache.keySet());
             Map<String, String> values = redisClient.hgetAll(key);
             if (CollectionUtils.isNotEmptyMap(values)) {
                 for (Map.Entry<String, String> entry : values.entrySet()) {
                     URL u = URL.valueOf(entry.getKey());
-                    long expire = Long.parseLong(entry.getValue());
                     if (!u.getParameter(DYNAMIC_KEY, true)
-                            || expire >= now) {
+                            || Long.parseLong(entry.getValue()) >= now) {
                         if (UrlUtils.isMatch(url, u)) {
                             urls.add(u);
-                            expireCache.put(u, expire);
-                            toDeleteExpireKeys.remove(u);
                         }
                     }
-                }
-            }
-
-            if (!toDeleteExpireKeys.isEmpty()) {
-                for (URL u : toDeleteExpireKeys) {
-                    expireCache.remove(u);
                 }
             }
             if (urls.isEmpty()) {
@@ -335,7 +315,6 @@ public class RedisRegistry extends FailbackRegistry {
                         .build());
             }
             result.addAll(urls);
-
             if (logger.isInfoEnabled()) {
                 logger.info("redis notify: " + key + " = " + urls);
             }

@@ -28,7 +28,6 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import static org.apache.dubbo.common.constants.RegistryConstants.EMPTY_PROTOCOL;
@@ -59,7 +58,7 @@ public class MulticastRegistryTest {
     @Test
     public void testUrlError() {
         Assertions.assertThrows(IllegalStateException.class, () -> {
-            URL errorUrl = URL.valueOf("multicast://dubbo.mullticast/");
+            URL errorUrl = URL.valueOf("multicast://mullticast/");
             new MulticastRegistry(errorUrl);
         });
     }
@@ -80,7 +79,7 @@ public class MulticastRegistryTest {
      */
     @Test
     public void testGetCustomPort() {
-        int port = NetUtils.getAvailablePort(20880 + new Random().nextInt(10000));
+        int port = NetUtils.getAvailablePort();
         URL customPortUrl = URL.valueOf("multicast://239.239.239.239:" + port);
         MulticastRegistry multicastRegistry = new MulticastRegistry(customPortUrl);
         assertThat(multicastRegistry.getUrl().getPort(), is(port));
@@ -182,7 +181,7 @@ public class MulticastRegistryTest {
      */
     @Test
     public void testAvailability() {
-        int port = NetUtils.getAvailablePort(20880 + new Random().nextInt(10000));
+        int port = NetUtils.getAvailablePort();
         MulticastRegistry registry = new MulticastRegistry(URL.valueOf("multicast://224.5.6.8:" + port));
         assertTrue(registry.isAvailable());
     }
@@ -220,7 +219,7 @@ public class MulticastRegistryTest {
      */
     @Test
     public void testCustomedPort() {
-        int port = NetUtils.getAvailablePort(20880 + new Random().nextInt(10000));
+        int port = NetUtils.getAvailablePort();
         MulticastRegistry multicastRegistry = new MulticastRegistry(URL.valueOf("multicast://224.5.6.7:" + port));
         try {
             MulticastSocket multicastSocket = multicastRegistry.getMulticastSocket();

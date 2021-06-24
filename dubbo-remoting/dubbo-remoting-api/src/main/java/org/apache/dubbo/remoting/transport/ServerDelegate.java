@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.remoting.transport;
 
-import org.apache.dubbo.common.Parameters;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.ChannelHandler;
@@ -62,7 +61,7 @@ public class ServerDelegate implements RemotingServer {
 
     @Override
     @Deprecated
-    public void reset(Parameters parameters) {
+    public void reset(org.apache.dubbo.common.Parameters parameters) {
         reset(getUrl().addParameters(parameters.getParameters()));
     }
 

@@ -62,6 +62,4 @@ public interface ZookeeperClient {
 
     String getContent(String path);
 
-    boolean checkExists(String path);
-
 }

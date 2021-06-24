@@ -206,7 +206,7 @@ public class EurekaServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doRegister(ServiceInstance serviceInstance) {
+    public void register(ServiceInstance serviceInstance) throws RuntimeException {
         initEurekaClient(serviceInstance);
         setInstanceStatus(InstanceInfo.InstanceStatus.UP);
     }
@@ -218,7 +218,7 @@ public class EurekaServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doUpdate(ServiceInstance serviceInstance) {
+    public void update(ServiceInstance serviceInstance) throws RuntimeException {
         setInstanceStatus(serviceInstance.isHealthy() ? InstanceInfo.InstanceStatus.UP :
                 InstanceInfo.InstanceStatus.UNKNOWN);
     }

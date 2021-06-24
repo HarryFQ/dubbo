@@ -37,6 +37,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.ANYHOST_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.ANYHOST_VALUE;
 import static org.apache.dubbo.remoting.Constants.ACCEPTS_KEY;
 import static org.apache.dubbo.remoting.Constants.DEFAULT_ACCEPTS;
+import static org.apache.dubbo.remoting.Constants.DEFAULT_IDLE_TIMEOUT;
+import static org.apache.dubbo.remoting.Constants.IDLE_TIMEOUT_KEY;
 
 /**
  * AbstractServer
@@ -49,6 +51,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
     private InetSocketAddress localAddress;
     private InetSocketAddress bindAddress;
     private int accepts;
+    private int idleTimeout;
 
     private ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
@@ -63,6 +66,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         }
         bindAddress = new InetSocketAddress(bindIp, bindPort);
         this.accepts = url.getParameter(ACCEPTS_KEY, DEFAULT_ACCEPTS);
+        this.idleTimeout = url.getParameter(IDLE_TIMEOUT_KEY, DEFAULT_IDLE_TIMEOUT);
         try {
             doOpen();
             if (logger.isInfoEnabled()) {
@@ -84,7 +88,6 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         if (url == null) {
             return;
         }
-
         try {
             if (url.hasParameter(ACCEPTS_KEY)) {
                 int a = url.getParameter(ACCEPTS_KEY, 0);
@@ -95,7 +98,16 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
-
+        try {
+            if (url.hasParameter(IDLE_TIMEOUT_KEY)) {
+                int t = url.getParameter(IDLE_TIMEOUT_KEY, 0);
+                if (t > 0) {
+                    this.idleTimeout = t;
+                }
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
         executorRepository.updateThreadpool(url, executor);
         super.setUrl(getUrl().addParameters(url.getParameters()));
     }
@@ -115,15 +127,12 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         if (logger.isInfoEnabled()) {
             logger.info("Close " + getClass().getSimpleName() + " bind " + getBindAddress() + ", export " + getLocalAddress());
         }
-
         ExecutorUtil.shutdownNow(executor, 100);
-
         try {
             super.close();
         } catch (Throwable e) {
             logger.warn(e.getMessage(), e);
         }
-
         try {
             doClose();
         } catch (Throwable e) {
@@ -150,6 +159,10 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         return accepts;
     }
 
+    public int getIdleTimeout() {
+        return idleTimeout;
+    }
+
     @Override
     public void connected(Channel ch) throws RemotingException {
         // If the server has entered the shutdown process, reject any new connection
@@ -159,7 +172,8 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             return;
         }
 
-        if (accepts > 0 && getChannels().size() > accepts) {
+        Collection<Channel> channels = getChannels();
+        if (accepts > 0 && channels.size() > accepts) {
             logger.error("Close channel " + ch + ", cause: The server " + ch.getLocalAddress() + " connections greater than max config " + accepts);
             ch.close();
             return;

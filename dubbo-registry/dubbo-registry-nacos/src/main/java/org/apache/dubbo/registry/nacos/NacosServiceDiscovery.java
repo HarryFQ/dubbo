@@ -27,13 +27,13 @@ import org.apache.dubbo.registry.client.event.listener.ServiceInstancesChangedLi
 import org.apache.dubbo.registry.nacos.util.NacosNamingServiceUtils;
 
 import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ListView;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,7 +54,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
 
     private String group;
 
-    private NacosNamingServiceWrapper namingService;
+    private NamingService namingService;
 
     private URL registryURL;
 
@@ -71,22 +71,20 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doRegister(ServiceInstance serviceInstance) {
+    public void register(ServiceInstance serviceInstance) throws RuntimeException {
+        super.register(serviceInstance);
         execute(namingService, service -> {
             Instance instance = toInstance(serviceInstance);
-            appendPreservedParam(instance);
             service.registerInstance(instance.getServiceName(), group, instance);
         });
     }
 
     @Override
-    public void doUpdate(ServiceInstance serviceInstance) {
-        if (this.serviceInstance == null) {
-            register(serviceInstance);
-        } else {
-            unregister(serviceInstance);
-            register(serviceInstance);
-        }
+    public void update(ServiceInstance serviceInstance) throws RuntimeException {
+        super.update(serviceInstance);
+        // TODO: Nacos should support
+        unregister(serviceInstance);
+        register(serviceInstance);
     }
 
     @Override
@@ -138,6 +136,11 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
         return registryURL;
     }
 
+    @Override
+    public ServiceInstance getLocalInstance() {
+        return null;
+    }
+
     private void handleEvent(NamingEvent event, ServiceInstancesChangedListener listener) {
         String serviceName = event.getServiceName();
         List<ServiceInstance> serviceInstances = event.getInstances()
@@ -145,10 +148,5 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
                 .map(NacosNamingServiceUtils::toServiceInstance)
                 .collect(Collectors.toList());
         dispatchServiceInstancesChangedEvent(serviceName, serviceInstances);
-    }
-
-    private void appendPreservedParam(Instance instance) {
-        Map<String, String> preservedParam = NacosNamingServiceUtils.getNacosPreservedParam(getUrl());
-        instance.getMetadata().putAll(preservedParam);
     }
 }

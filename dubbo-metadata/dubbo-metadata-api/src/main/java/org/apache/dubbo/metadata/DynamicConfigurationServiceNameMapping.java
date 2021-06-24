@@ -20,7 +20,6 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.common.utils.CollectionUtils;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -30,6 +29,7 @@ import java.util.Set;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
 import static org.apache.dubbo.rpc.model.ApplicationModel.getName;
 
 /**
@@ -47,6 +47,8 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
     public void map(URL url) {
         String serviceInterface = url.getServiceInterface();
         String group = url.getParameter(GROUP_KEY);
+        String version = url.getParameter(VERSION_KEY);
+        String protocol = url.getProtocol();
 
         if (IGNORED_SERVICE_INTERFACES.contains(serviceInterface)) {
             return;
@@ -61,10 +63,10 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
         String content = valueOf(System.currentTimeMillis());
 
         execute(() -> {
-            dynamicConfiguration.publishConfig(key, ServiceNameMapping.buildGroup(serviceInterface), content);
+            dynamicConfiguration.publishConfig(key, ServiceNameMapping.buildGroup(serviceInterface, group, version, protocol), content);
             if (logger.isInfoEnabled()) {
                 logger.info(String.format("Dubbo service[%s] mapped to interface name[%s].",
-                        group, serviceInterface));
+                        group, serviceInterface, group));
             }
         });
     }
@@ -72,15 +74,16 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
     @Override
     public Set<String> getAndListen(URL url, MappingListener mappingListener) {
         String serviceInterface = url.getServiceInterface();
+        String group = url.getParameter(GROUP_KEY);
+        String version = url.getParameter(VERSION_KEY);
+        String protocol = url.getProtocol();
         DynamicConfiguration dynamicConfiguration = DynamicConfiguration.getDynamicConfiguration();
 
         Set<String> serviceNames = new LinkedHashSet<>();
         execute(() -> {
             Set<String> keys = dynamicConfiguration
-                    .getConfigKeys(ServiceNameMapping.buildGroup(serviceInterface));
-            if (CollectionUtils.isNotEmpty(keys)) {
-                serviceNames.addAll(keys);
-            }
+                    .getConfigKeys(ServiceNameMapping.buildGroup(serviceInterface, group, version, protocol));
+            serviceNames.addAll(keys);
         });
         return Collections.unmodifiableSet(serviceNames);
     }

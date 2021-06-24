@@ -34,7 +34,6 @@ import io.etcd.jetcd.launcher.EtcdClusterFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -52,7 +51,6 @@ import static org.apache.dubbo.common.constants.CommonConstants.PROVIDER_SIDE;
 /**
  * Unit test for etcd metadata report
  */
-@Disabled
 public class EtcdMetadataReportTest {
 
     private static final String TEST_SERVICE = "org.apache.dubbo.metadata.store.etcd.EtcdMetadata4TstService";

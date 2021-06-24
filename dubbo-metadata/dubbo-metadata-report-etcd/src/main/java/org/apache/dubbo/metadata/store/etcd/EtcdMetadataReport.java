@@ -34,6 +34,8 @@
 package org.apache.dubbo.metadata.store.etcd;
 
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.metadata.report.identifier.BaseMetadataIdentifier;
 import org.apache.dubbo.metadata.report.identifier.KeyTypeEnum;
@@ -55,6 +57,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.PATH_SEPARATOR;
  * Report Metadata to Etcd
  */
 public class EtcdMetadataReport extends AbstractMetadataReport {
+
+    private final static Logger logger = LoggerFactory.getLogger(EtcdMetadataReport.class);
 
     private final String root;
 

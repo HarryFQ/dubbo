@@ -18,11 +18,8 @@
 package org.apache.dubbo.metadata.store.nacos;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.metadata.report.MetadataReport;
 import org.apache.dubbo.metadata.report.support.AbstractMetadataReportFactory;
-
-import static org.apache.dubbo.common.constants.CommonConstants.CONFIG_NAMESPACE_KEY;
 
 /**
  * metadata report factory impl for nacos
@@ -30,11 +27,6 @@ import static org.apache.dubbo.common.constants.CommonConstants.CONFIG_NAMESPACE
 public class NacosMetadataReportFactory extends AbstractMetadataReportFactory {
     @Override
     protected MetadataReport createMetadataReport(URL url) {
-        URL nacosURL = url;
-        if (CommonConstants.DUBBO.equals(url.getParameter(CONFIG_NAMESPACE_KEY))) {
-            // ignore "dubbo" namespace, make the behavior equivalent to configcenter
-            nacosURL = url.removeParameter(CONFIG_NAMESPACE_KEY);
-        }
-        return new NacosMetadataReport(nacosURL);
+        return new NacosMetadataReport(url);
     }
 }

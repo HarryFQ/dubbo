@@ -27,7 +27,9 @@ import org.apache.dubbo.monitor.MonitorService;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
@@ -53,7 +55,7 @@ public abstract class AbstractMonitorFactory implements MonitorFactory {
      */
     private static final Map<String, Monitor> MONITORS = new ConcurrentHashMap<String, Monitor>();
 
-    private static final Map<String, Future<Monitor>> FUTURES = new ConcurrentHashMap<String, Future<Monitor>>();
+    private static final Map<String, CompletableFuture<Monitor>> FUTURES = new ConcurrentHashMap<String, CompletableFuture<Monitor>>();
 
     /**
      * The monitor create executor
@@ -83,18 +85,10 @@ public abstract class AbstractMonitorFactory implements MonitorFactory {
             }
 
             final URL monitorUrl = url;
-            future = EXECUTOR.submit(() -> {
-                try {
-                    Monitor m = createMonitor(monitorUrl);
-                    MONITORS.put(key, m);
-                    FUTURES.remove(key);
-                    return m;
-                } catch (Throwable e) {
-                    logger.warn("Create monitor failed, monitor data will not be collected until you fix this problem. monitorUrl: " + monitorUrl, e);
-                    return null;
-                }
-            });
-            FUTURES.put(key, future);
+            final CompletableFuture<Monitor> completableFuture = CompletableFuture.supplyAsync(() -> AbstractMonitorFactory.this.createMonitor(monitorUrl));
+            FUTURES.put(key, completableFuture);
+            completableFuture.thenRunAsync(new MonitorListener(key), EXECUTOR);
+
             return null;
         } finally {
             // unlock
@@ -103,5 +97,29 @@ public abstract class AbstractMonitorFactory implements MonitorFactory {
     }
 
     protected abstract Monitor createMonitor(URL url);
+
+
+    class MonitorListener implements Runnable {
+
+        private String key;
+
+        public MonitorListener(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public void run() {
+            try {
+                CompletableFuture<Monitor> completableFuture = AbstractMonitorFactory.FUTURES.get(key);
+                AbstractMonitorFactory.MONITORS.put(key, completableFuture.get());
+                AbstractMonitorFactory.FUTURES.remove(key);
+            } catch (InterruptedException e) {
+                logger.warn("Thread was interrupted unexpectedly, monitor will never be got.");
+                AbstractMonitorFactory.FUTURES.remove(key);
+            } catch (ExecutionException e) {
+                logger.warn("Create monitor failed, monitor data will not be collected until you fix this problem. ", e);
+            }
+        }
+    }
 
 }

@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ExecutableElementComparator implements Comparator<ExecutableElement> {
 
-    public static final ExecutableElementComparator INSTANCE = new ExecutableElementComparator();
+    public final static ExecutableElementComparator INSTANCE = new ExecutableElementComparator();
 
     private ExecutableElementComparator() {
     }

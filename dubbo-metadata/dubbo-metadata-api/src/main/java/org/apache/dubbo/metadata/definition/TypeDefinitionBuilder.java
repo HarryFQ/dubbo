@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.dubbo.common.utils.ClassUtils.isSimpleType;
+
 /**
  * 2015/1/27.
  */
@@ -52,6 +54,9 @@ public class TypeDefinitionBuilder {
         } else {
             td = DefaultTypeBuilder.build(clazz, typeCache);
             td.setTypeBuilderName(DefaultTypeBuilder.class.getName());
+        }
+        if (isSimpleType(clazz)) { // changed since 2.7.6
+            td.setProperties(null);
         }
         return td;
     }

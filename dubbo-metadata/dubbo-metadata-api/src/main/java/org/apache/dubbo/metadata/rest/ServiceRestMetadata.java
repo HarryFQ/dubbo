@@ -76,12 +76,8 @@ public class ServiceRestMetadata implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ServiceRestMetadata)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof ServiceRestMetadata)) return false;
         ServiceRestMetadata that = (ServiceRestMetadata) o;
         return Objects.equals(getServiceInterface(), that.getServiceInterface()) &&
                 Objects.equals(getVersion(), that.getVersion()) &&

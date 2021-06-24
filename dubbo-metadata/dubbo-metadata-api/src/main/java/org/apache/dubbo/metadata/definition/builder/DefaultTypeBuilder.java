@@ -26,8 +26,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.dubbo.common.utils.ClassUtils.isSimpleType;
-
 /**
  * 2015/1/27.
  */
@@ -53,16 +51,14 @@ public final class DefaultTypeBuilder {
         ref.set$ref(name);
         typeCache.put(clazz, ref);
 
-        if(!clazz.isPrimitive() && !isSimpleType(clazz)){
-            List<Field> fields = ClassUtils.getNonStaticFields(clazz);
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                Class<?> fieldClass = field.getType();
-                Type fieldType = field.getGenericType();
+        List<Field> fields = ClassUtils.getNonStaticFields(clazz);
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            Class<?> fieldClass = field.getType();
+            Type fieldType = field.getGenericType();
 
-                TypeDefinition fieldTd = TypeDefinitionBuilder.build(fieldType, fieldClass, typeCache);
-                td.getProperties().put(fieldName, fieldTd);
-            }
+            TypeDefinition fieldTd = TypeDefinitionBuilder.build(fieldType, fieldClass, typeCache);
+            td.getProperties().put(fieldName, fieldTd);
         }
 
         typeCache.put(clazz, td);

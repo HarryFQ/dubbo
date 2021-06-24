@@ -65,8 +65,8 @@ public class ExceptionFilter implements Filter, Filter.Listener {
                 // directly throw if the exception appears in the signature
                 try {
                     Method method = invoker.getInterface().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
-                    Class<?>[] exceptionClasses = method.getExceptionTypes();
-                    for (Class<?> exceptionClass : exceptionClasses) {
+                    Class<?>[] exceptionClassses = method.getExceptionTypes();
+                    for (Class<?> exceptionClass : exceptionClassses) {
                         if (exception.getClass().equals(exceptionClass)) {
                             return;
                         }

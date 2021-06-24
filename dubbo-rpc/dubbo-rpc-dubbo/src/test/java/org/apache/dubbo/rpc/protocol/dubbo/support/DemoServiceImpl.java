@@ -18,7 +18,6 @@ package org.apache.dubbo.rpc.protocol.dubbo.support;
 
 import org.apache.dubbo.rpc.RpcContext;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -126,12 +125,5 @@ public class DemoServiceImpl implements DemoService {
     @Override
     public String getRemoteApplicationName() {
         return RpcContext.getContext().getRemoteApplicationName();
-    }
-
-    @Override
-    public byte[] download(int size) {
-        byte[] bytes = new byte[size];
-        Arrays.fill(bytes, (byte) 0);
-        return bytes;
     }
 }

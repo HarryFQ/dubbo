@@ -37,7 +37,6 @@ import org.apache.dubbo.rpc.service.EchoService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -76,14 +75,6 @@ public class DubboProtocolTest {
     }
 
     @Test
-    public void testGetDubboProtocol(){
-        DemoService service = new DemoServiceImpl();
-        int port = NetUtils.getAvailablePort();
-        protocol.export(proxy.getInvoker(service, DemoService.class, URL.valueOf("dubbo://127.0.0.1:" + port + "/" + DemoService.class.getName())));
-        Assertions.assertTrue(DubboProtocol.getDubboProtocol().getServers().size() > 0);
-    }
-
-    @Test
     public void testDubboProtocol() throws Exception {
         DemoService service = new DemoServiceImpl();
         int port = NetUtils.getAvailablePort();
@@ -103,7 +94,7 @@ public class DubboProtocolTest {
         service = proxy.getProxy(protocol.refer(DemoService.class, URL.valueOf("dubbo://127.0.0.1:" + port + "/" + DemoService.class.getName() + "?client=netty").addParameter("timeout",
                 3000L)));
         // test netty client
-        StringBuilder buf = new StringBuilder();
+        StringBuffer buf = new StringBuffer();
         for (int i = 0; i < 1024 * 32 + 32; i++)
             buf.append('A');
         System.out.println(service.stringLength(buf.toString()));
@@ -117,7 +108,6 @@ public class DubboProtocolTest {
         assertEquals(echo.$echo(1234), 1234);
     }
 
-    @Disabled("Mina has been moved to a separate project")
     @Test
     public void testDubboProtocolWithMina() throws Exception {
         DemoService service = new DemoServiceImpl();
@@ -142,7 +132,7 @@ public class DubboProtocolTest {
         service = proxy.getProxy(protocol.refer(DemoService.class, URL.valueOf("dubbo://127.0.0.1:" + port + "/" + DemoService.class.getName() + "?client=mina").addParameter("timeout",
                 3000L)));
         // test netty client
-        StringBuilder buf = new StringBuilder();
+        StringBuffer buf = new StringBuffer();
         for (int i = 0; i < 1024 * 32 + 32; i++)
             buf.append('A');
         System.out.println(service.stringLength(buf.toString()));
@@ -224,7 +214,6 @@ public class DubboProtocolTest {
             service.returnNonSerialized();
             Assertions.fail();
         } catch (RpcException e) {
-            e.printStackTrace();
             Assertions.assertTrue(e.getMessage().contains("org.apache.dubbo.rpc.protocol.dubbo.support.NonSerialized must implement java.io.Serializable"));
         }
     }
@@ -238,23 +227,5 @@ public class DubboProtocolTest {
         protocol.export(proxy.getInvoker(service, DemoService.class, url));
         service = proxy.getProxy(protocol.refer(DemoService.class, url));
         assertEquals(service.getRemoteApplicationName(), "consumer");
-    }
-
-    @Test
-    public void testPayloadOverException() throws Exception {
-        DemoService service = new DemoServiceImpl();
-        int port = NetUtils.getAvailablePort();
-        protocol.export(proxy.getInvoker(service, DemoService.class,
-                URL.valueOf("dubbo://127.0.0.1:" + port + "/" + DemoService.class.getName()).addParameter("payload", 10 * 1024)));
-        service = proxy.getProxy(protocol.refer(DemoService.class,
-                URL.valueOf("dubbo://127.0.0.1:" + port + "/" + DemoService.class.getName()).addParameter("timeout",
-                        6000L).addParameter("payload", 160)));
-        try {
-            service.download(300);
-            Assertions.fail();
-        } catch (Exception expected) {
-            Assertions.assertTrue(expected.getMessage().contains("Data length too large"));
-        }
-
     }
 }

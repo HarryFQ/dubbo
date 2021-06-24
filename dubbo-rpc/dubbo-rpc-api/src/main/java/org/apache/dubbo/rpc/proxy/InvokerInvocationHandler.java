@@ -19,7 +19,6 @@ package org.apache.dubbo.rpc.proxy;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.rpc.Constants;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.RpcContext;
@@ -27,30 +26,19 @@ import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 import org.apache.dubbo.rpc.model.ConsumerModel;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
- * InvokerHandler
+ * InvokerHandler TODO Mock 降级实现
  */
 public class InvokerInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
+    // MockClusterInvoker 的实现
     private final Invoker<?> invoker;
     private ConsumerModel consumerModel;
     private URL url;
     private String protocolServiceKey;
-
-    public static Field stackTraceField;
-
-    static {
-        try {
-            stackTraceField = Throwable.class.getDeclaredField("stackTrace");
-            ReflectUtils.makeAccessible(stackTraceField);
-        } catch (NoSuchFieldException e) {
-            // ignore
-        }
-    }
 
     public InvokerInvocationHandler(Invoker<?> handler) {
         this.invoker = handler;
@@ -64,11 +52,13 @@ public class InvokerInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // 拦截定义在 Object 类中的方法（未被子类重写），比如 wait/notify
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
         String methodName = method.getName();
         Class<?>[] parameterTypes = method.getParameterTypes();
+        // 如果 toString、hashCode 和 equals 等方法被子类重写了，这里也直接调用
         if (parameterTypes.length == 0) {
             if ("toString".equals(methodName)) {
                 return invoker.toString();
@@ -84,15 +74,13 @@ public class InvokerInvocationHandler implements InvocationHandler {
         RpcInvocation rpcInvocation = new RpcInvocation(method, invoker.getInterface().getName(), protocolServiceKey, args);
         String serviceKey = invoker.getUrl().getServiceKey();
         rpcInvocation.setTargetServiceUniqueName(serviceKey);
-
         // invoker.getUrl() returns consumer url.
         RpcContext.setRpcContext(invoker.getUrl());
-
         if (consumerModel != null) {
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-
+        // 将 method 和 args 封装到 RpcInvocation 中，并执行后续的调用
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

@@ -30,9 +30,9 @@ public class AttachmentsAdapter {
 
         public ObjectToStringMap(Map<String, Object> attachments) {
             for (Entry<String, Object> entry : attachments.entrySet()) {
-                String convertResult = convert(entry.getValue());
-                if (convertResult != null) {
-                    super.put(entry.getKey(), convertResult);
+                String converResult = convert(entry.getValue());
+                if (converResult != null) {
+                    super.put(entry.getKey(), converResult);
                 }
             }
             this.attachments = attachments;

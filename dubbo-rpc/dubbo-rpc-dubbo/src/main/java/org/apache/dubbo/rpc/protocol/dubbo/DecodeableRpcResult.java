@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.rpc.protocol.dubbo;
 
-import org.apache.dubbo.common.config.ConfigurationUtils;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.serialize.Cleanable;
@@ -38,9 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-
-import static org.apache.dubbo.rpc.Constants.SERIALIZATION_ID_KEY;
-import static org.apache.dubbo.rpc.Constants.SERIALIZATION_SECURITY_CHECK_KEY;
 
 public class DecodeableRpcResult extends AppResponse implements Codec, Decodeable {
 
@@ -118,14 +114,6 @@ public class DecodeableRpcResult extends AppResponse implements Codec, Decodeabl
     public void decode() throws Exception {
         if (!hasDecoded && channel != null && inputStream != null) {
             try {
-                if (ConfigurationUtils.getSystemConfiguration().getBoolean(SERIALIZATION_SECURITY_CHECK_KEY, false)) {
-                    Object serializationType_obj = invocation.get(SERIALIZATION_ID_KEY);
-                    if (serializationType_obj != null) {
-                        if ((byte) serializationType_obj != serializationType) {
-                            throw new IOException("Unexpected serialization id:" + serializationType + " received from network, please check if the peer send the right id.");
-                        }
-                    }
-                }
                 decode(channel, inputStream);
             } catch (Throwable e) {
                 if (log.isWarnEnabled()) {
@@ -172,7 +160,7 @@ public class DecodeableRpcResult extends AppResponse implements Codec, Decodeabl
 
     private void handleAttachment(ObjectInput in) throws IOException {
         try {
-            addObjectAttachments(in.readAttachments());
+            setObjectAttachments(in.readAttachments());
         } catch (ClassNotFoundException e) {
             rethrow(e);
         }

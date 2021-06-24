@@ -17,7 +17,6 @@
 package org.apache.dubbo.rpc.protocol.thrift;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.rpc.gen.dubbo.$__DemoStub;
 import org.apache.dubbo.rpc.gen.dubbo.Demo;
 import org.apache.dubbo.rpc.protocol.thrift.ext.MultiServiceProcessor;
@@ -47,7 +46,7 @@ public class ServiceMethodNotFoundTest extends AbstractTest {
         // for test
         Field field = processor.getClass().getSuperclass().getDeclaredField("processMap");
 
-        ReflectUtils.makeAccessible(field);
+        field.setAccessible(true);
 
         Object obj = field.get(processor);
 
@@ -133,7 +132,7 @@ public class ServiceMethodNotFoundTest extends AbstractTest {
         String arg = "Hello, World!";
 
         invocation.setArguments( new Object[] { arg } );
-
+        
         invocation.setAttachment(Constants.INTERFACE_KEY, DemoImpl.class.getName());
 
         Result result = invoker.invoke( invocation );

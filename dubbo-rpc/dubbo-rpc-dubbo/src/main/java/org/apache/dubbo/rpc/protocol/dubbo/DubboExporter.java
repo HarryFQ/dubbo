@@ -16,9 +16,11 @@
  */
 package org.apache.dubbo.rpc.protocol.dubbo;
 
+import org.apache.dubbo.rpc.Exporter;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.protocol.AbstractExporter;
-import org.apache.dubbo.rpc.protocol.DelegateExporterMap;
+
+import java.util.Map;
 
 /**
  * DubboExporter
@@ -27,16 +29,18 @@ public class DubboExporter<T> extends AbstractExporter<T> {
 
     private final String key;
 
-    private final DelegateExporterMap delegateExporterMap;
+    private final Map<String, Exporter<?>> exporterMap;
 
-    public DubboExporter(Invoker<T> invoker, String key, DelegateExporterMap delegateExporterMap) {
+    public DubboExporter(Invoker<T> invoker, String key, Map<String, Exporter<?>> exporterMap) {
         super(invoker);
         this.key = key;
-        this.delegateExporterMap = delegateExporterMap;
+        this.exporterMap = exporterMap;
     }
 
     @Override
-    public void afterUnExport() {
-        delegateExporterMap.removeExportMap(key, this);
+    public void unexport() {
+        super.unexport();
+        exporterMap.remove(key);
     }
+
 }

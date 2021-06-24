@@ -40,7 +40,7 @@
             <artifactId>jedis</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.codemonstur</groupId>
+            <groupId>com.github.kstyrc</groupId>
             <artifactId>embedded-redis</artifactId>
             <scope>test</scope>
         </dependency>

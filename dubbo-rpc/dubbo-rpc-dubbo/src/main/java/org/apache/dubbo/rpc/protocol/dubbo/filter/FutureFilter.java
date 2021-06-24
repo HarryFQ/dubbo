@@ -20,7 +20,6 @@ import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.rpc.Filter;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
@@ -80,8 +79,10 @@ public class FutureFilter implements Filter, Filter.Listener {
         if (onInvokeMethod == null || onInvokeInst == null) {
             throw new IllegalStateException("service:" + invoker.getUrl().getServiceKey() + " has a oninvoke callback config , but no such " + (onInvokeMethod == null ? "method" : "instance") + " found. url:" + invoker.getUrl());
         }
+        if (!onInvokeMethod.isAccessible()) {
+            onInvokeMethod.setAccessible(true);
+        }
 
-        ReflectUtils.makeAccessible(onInvokeMethod);
         Object[] params = invocation.getArguments();
         try {
             onInvokeMethod.invoke(onInvokeInst, params);
@@ -109,7 +110,9 @@ public class FutureFilter implements Filter, Filter.Listener {
         if (onReturnMethod == null || onReturnInst == null) {
             throw new IllegalStateException("service:" + invoker.getUrl().getServiceKey() + " has a onreturn callback config , but no such " + (onReturnMethod == null ? "method" : "instance") + " found. url:" + invoker.getUrl());
         }
-        ReflectUtils.makeAccessible(onReturnMethod);
+        if (!onReturnMethod.isAccessible()) {
+            onReturnMethod.setAccessible(true);
+        }
 
         Object[] args = invocation.getArguments();
         Object[] params;
@@ -152,7 +155,9 @@ public class FutureFilter implements Filter, Filter.Listener {
         if (onthrowMethod == null || onthrowInst == null) {
             throw new IllegalStateException("service:" + invoker.getUrl().getServiceKey() + " has a onthrow callback config , but no such " + (onthrowMethod == null ? "method" : "instance") + " found. url:" + invoker.getUrl());
         }
-        ReflectUtils.makeAccessible(onthrowMethod);
+        if (!onthrowMethod.isAccessible()) {
+            onthrowMethod.setAccessible(true);
+        }
         Class<?>[] rParaTypes = onthrowMethod.getParameterTypes();
         if (rParaTypes[0].isAssignableFrom(exception.getClass())) {
             try {

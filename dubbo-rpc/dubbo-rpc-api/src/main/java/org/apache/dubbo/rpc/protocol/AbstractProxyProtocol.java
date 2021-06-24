@@ -77,7 +77,7 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
     @SuppressWarnings("unchecked")
     public <T> Exporter<T> export(final Invoker<T> invoker) throws RpcException {
         final String uri = serviceKey(invoker.getUrl());
-        Exporter<T> exporter = (Exporter<T>) exporterMap.getExport(uri);
+        Exporter<T> exporter = (Exporter<T>) exporterMap.get(uri);
         if (exporter != null) {
             // When modifying the configuration through override, you need to re-expose the newly modified service.
             if (Objects.equals(exporter.getInvoker().getUrl(), invoker.getUrl())) {
@@ -87,8 +87,9 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
         final Runnable runnable = doExport(proxyFactory.getProxy(invoker, true), invoker.getInterface(), invoker.getUrl());
         exporter = new AbstractExporter<T>(invoker) {
             @Override
-            public void afterUnExport() {
-                exporterMap.removeExportMap(uri, this);
+            public void unexport() {
+                super.unexport();
+                exporterMap.remove(uri);
                 if (runnable != null) {
                     try {
                         runnable.run();
@@ -98,7 +99,7 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
                 }
             }
         };
-        exporterMap.addExportMap(uri, exporter);
+        exporterMap.put(uri, exporter);
         return exporter;
     }
 
@@ -128,13 +129,6 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
                 } catch (Throwable e) {
                     throw getRpcException(type, url, invocation, e);
                 }
-            }
-
-            @Override
-            public void destroy() {
-                super.destroy();
-                target.destroy();
-                invokers.remove(this);
             }
         };
         invokers.add(invoker);
@@ -276,5 +270,6 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
             return false;
         }
     }
+
 
 }

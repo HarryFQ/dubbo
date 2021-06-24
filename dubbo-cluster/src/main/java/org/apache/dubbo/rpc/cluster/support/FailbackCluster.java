@@ -26,7 +26,7 @@ import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
  */
 public class FailbackCluster extends AbstractCluster {
 
-    public static final String NAME = "failback";
+    public final static String NAME = "failback";
 
     @Override
     public <T> AbstractClusterInvoker<T> doJoin(Directory<T> directory) throws RpcException {

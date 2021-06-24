@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.dubbo.rpc.cluster.Constants.ROUTER_KEY;
-
 /**
  * Router chain
  */
@@ -50,7 +48,7 @@ public class RouterChain<T> {
 
     private RouterChain(URL url) {
         List<RouterFactory> extensionFactories = ExtensionLoader.getExtensionLoader(RouterFactory.class)
-                .getActivateExtension(url, ROUTER_KEY);
+                .getActivateExtension(url, "router");
 
         List<Router> routers = extensionFactories.stream()
                 .map(factory -> factory.getRouter(url))

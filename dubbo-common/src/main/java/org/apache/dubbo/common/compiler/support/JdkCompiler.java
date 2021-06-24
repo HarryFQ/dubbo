@@ -53,8 +53,6 @@ import java.util.Set;
  */
 public class JdkCompiler extends AbstractCompiler {
 
-    public static final String NAME = "jdk";
-
     private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
     private final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
@@ -63,22 +61,14 @@ public class JdkCompiler extends AbstractCompiler {
 
     private final JavaFileManagerImpl javaFileManager;
 
-    private final List<String> options;
+    private volatile List<String> options;
 
-    private static final String DEFAULT_JAVA_VERSION = "1.8";
-
-    private static List<String> buildDefaultOptions(String javaVersion) {
-        return Arrays.asList(
-                "-source", javaVersion, "-target", javaVersion
-        );
-    }
-
-    private static List<String> buildDefaultOptions() {
-        return buildDefaultOptions(DEFAULT_JAVA_VERSION);
-    }
-
-    public JdkCompiler(List<String> options) {
-        this.options = new ArrayList<>(options);
+    public JdkCompiler() {
+        options = new ArrayList<String>();
+        options.add("-source");
+        options.add("1.6");
+        options.add("-target");
+        options.add("1.6");
         StandardJavaFileManager manager = compiler.getStandardFileManager(diagnosticCollector, null, null);
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         if (loader instanceof URLClassLoader
@@ -103,14 +93,6 @@ public class JdkCompiler extends AbstractCompiler {
         javaFileManager = new JavaFileManagerImpl(manager, classLoader);
     }
 
-    public JdkCompiler() {
-        this(buildDefaultOptions());
-    }
-
-    public JdkCompiler(String javaVersion) {
-        this(buildDefaultOptions(javaVersion));
-    }
-
     @Override
     public Class<?> doCompile(String name, String sourceCode) throws Throwable {
         int i = name.lastIndexOf('.');
@@ -120,7 +102,7 @@ public class JdkCompiler extends AbstractCompiler {
         javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, packageName,
                 className + ClassUtils.JAVA_EXTENSION, javaFileObject);
         Boolean result = compiler.getTask(null, javaFileManager, diagnosticCollector, options,
-                null, Collections.singletonList(javaFileObject)).call();
+                null, Arrays.asList(javaFileObject)).call();
         if (result == null || !result) {
             throw new IllegalStateException("Compilation failed. class: " + name + ", diagnostics: " + diagnosticCollector);
         }
@@ -252,7 +234,7 @@ public class JdkCompiler extends AbstractCompiler {
         }
     }
 
-    private static final class ClassLoaderImpl extends ClassLoader {
+    private final class ClassLoaderImpl extends ClassLoader {
 
         private final Map<String, JavaFileObject> classes = new HashMap<String, JavaFileObject>();
 

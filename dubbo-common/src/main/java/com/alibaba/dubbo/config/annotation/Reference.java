@@ -17,9 +17,6 @@
 
 package com.alibaba.dubbo.config.annotation;
 
-import org.apache.dubbo.common.constants.ClusterRules;
-import org.apache.dubbo.common.constants.LoadbalanceRules;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -64,7 +61,7 @@ public @interface Reference {
 
     String stub() default "";
 
-    String cluster() default ClusterRules.EMPTY;
+    String cluster() default "";
 
     int connections() default 0;
 
@@ -80,7 +77,7 @@ public @interface Reference {
 
     int retries() default 2;
 
-    String loadbalance() default LoadbalanceRules.EMPTY;
+    String loadbalance() default "";
 
     boolean async() default false;
 

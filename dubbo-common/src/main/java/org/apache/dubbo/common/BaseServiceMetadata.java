@@ -18,13 +18,11 @@ package org.apache.dubbo.common;
 
 import org.apache.dubbo.common.utils.StringUtils;
 
-import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_VERSION;
-
 /**
  * 2019-10-10
  */
 public class BaseServiceMetadata {
-    public static final char COLON_SEPARATOR = ':';
+    public static final char COLON_SEPERATOR = ':';
 
     protected String serviceKey;
     protected String serviceInterfaceName;
@@ -33,11 +31,11 @@ public class BaseServiceMetadata {
 
     public static String buildServiceKey(String path, String group, String version) {
         StringBuilder buf = new StringBuilder();
-        if (StringUtils.isNotEmpty(group)) {
+        if (group != null && group.length() > 0) {
             buf.append(group).append("/");
         }
         buf.append(path);
-        if (StringUtils.isNotEmpty(version)) {
+        if (version != null && version.length() > 0) {
             buf.append(":").append(version);
         }
         return buf.toString();
@@ -46,7 +44,7 @@ public class BaseServiceMetadata {
     public static String versionFromServiceKey(String serviceKey) {
         int index = serviceKey.indexOf(":");
         if (index == -1) {
-            return DEFAULT_VERSION;
+            return null;
         }
         return serviceKey.substring(index + 1);
     }
@@ -74,13 +72,8 @@ public class BaseServiceMetadata {
      */
     public String getDisplayServiceKey() {
         StringBuilder serviceNameBuilder = new StringBuilder();
-        if(StringUtils.isNotEmpty(serviceInterfaceName)){
-            serviceNameBuilder.append(serviceInterfaceName);
-        }
-
-        if(StringUtils.isNotEmpty(version)){
-            serviceNameBuilder.append(COLON_SEPARATOR).append(version);
-        }
+        serviceNameBuilder.append(serviceInterfaceName);
+        serviceNameBuilder.append(COLON_SEPERATOR).append(version);
         return serviceNameBuilder.toString();
     }
 
@@ -91,7 +84,7 @@ public class BaseServiceMetadata {
      * @return
      */
     public static BaseServiceMetadata revertDisplayServiceKey(String displayKey) {
-        String[] eles = StringUtils.split(displayKey, COLON_SEPARATOR);
+        String[] eles = StringUtils.split(displayKey, COLON_SEPERATOR);
         if (eles == null || eles.length < 1 || eles.length > 2) {
             return new BaseServiceMetadata();
         }

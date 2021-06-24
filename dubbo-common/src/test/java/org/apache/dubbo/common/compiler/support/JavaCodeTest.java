@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class JavaCodeTest {
 
-    public static final AtomicInteger SUBFIX = new AtomicInteger(8);
+    public final static AtomicInteger SUBFIX = new AtomicInteger(8);
 
     String getSimpleCode() {
         StringBuilder code = new StringBuilder();

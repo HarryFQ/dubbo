@@ -62,11 +62,14 @@ public class EagerThreadPoolTest {
                 Matchers.<RejectedExecutionHandler>instanceOf(AbortPolicyWithReport.class));
 
         final CountDownLatch latch = new CountDownLatch(1);
-        executor.execute(() -> {
-            Thread thread = Thread.currentThread();
-            assertThat(thread, instanceOf(InternalThread.class));
-            assertThat(thread.getName(), startsWith("demo"));
-            latch.countDown();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Thread thread = Thread.currentThread();
+                assertThat(thread, instanceOf(InternalThread.class));
+                assertThat(thread.getName(), startsWith("demo"));
+                latch.countDown();
+            }
         });
 
         latch.await();

@@ -17,15 +17,15 @@
 package org.apache.dubbo.config.spring.registry;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.registry.client.AbstractServiceDiscovery;
+import org.apache.dubbo.registry.client.ServiceDiscovery;
 import org.apache.dubbo.registry.client.ServiceInstance;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class MockServiceDiscovery extends AbstractServiceDiscovery {
-
+public class MockServiceDiscovery implements ServiceDiscovery {
     private URL registryURL;
+    private ServiceInstance serviceInstance;
 
     @Override
     public void initialize(URL registryURL) throws Exception {
@@ -38,13 +38,13 @@ public class MockServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    public void doRegister(ServiceInstance serviceInstance) {
-
+    public void register(ServiceInstance serviceInstance) throws RuntimeException {
+        this.serviceInstance = serviceInstance;
     }
 
     @Override
-    public void doUpdate(ServiceInstance serviceInstance) {
-
+    public void update(ServiceInstance serviceInstance) throws RuntimeException {
+        this.serviceInstance = serviceInstance;
     }
 
     @Override
@@ -60,5 +60,10 @@ public class MockServiceDiscovery extends AbstractServiceDiscovery {
     @Override
     public URL getUrl() {
         return registryURL;
+    }
+
+    @Override
+    public ServiceInstance getLocalInstance() {
+        return serviceInstance;
     }
 }

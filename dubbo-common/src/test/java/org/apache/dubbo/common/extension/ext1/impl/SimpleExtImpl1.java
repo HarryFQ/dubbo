@@ -16,19 +16,18 @@
  */
 package org.apache.dubbo.common.extension.ext1.impl;
 
-import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ext1.SimpleExt;
 
 public class SimpleExtImpl1 implements SimpleExt {
-    public String echo(URL url, String s) {
-        return "Ext1Impl1-echo";
+    public String echo(String echo, String s) {
+        return "Ext1Impl1-echo-"+echo+"-"+s;
     }
 
-    public String yell(URL url, String s) {
-        return "Ext1Impl1-yell";
+    public String yell(String yell, String s) {
+        return "Ext1Impl1-yell-"+yell+"-"+s;
     }
 
-    public String bang(URL url, int i) {
-        return "bang1";
+    public String bang(String bang, int i) {
+        return "bang1-"+bang+"-"+i;
     }
 }

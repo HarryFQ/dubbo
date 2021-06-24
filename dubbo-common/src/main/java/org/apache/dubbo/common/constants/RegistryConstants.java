@@ -23,6 +23,8 @@ public interface RegistryConstants {
 
     String REGISTRY_CLUSTER_KEY = "REGISTRY_CLUSTER";
 
+    String REGISTRY_CLUSTER = "REGISTRY_CLUSTER";
+
     String REGISTRY_CLUSTER_TYPE_KEY = "registry-cluster-type";
 
     String REGISTRY_PROTOCOL = "registry";
@@ -57,9 +59,10 @@ public interface RegistryConstants {
 
     String COMPATIBLE_CONFIG_KEY = "compatible_config";
 
-    String REGISTRY_PUBLISH_INTERFACE_KEY = "publish-interface";
+    String REGISTRY_DUPLICATE_KEY = "duplicate";
 
-    String DUBBO_PUBLISH_INTERFACE_DEFAULT_KEY = "dubbo.application.publish-interface";
+    String ENABLE_REGISTRY_DIRECTORY_AUTO_MIGRATION = "enable-auto-migration";
+
     /**
      * The parameter key of Dubbo Registry type
      *
@@ -111,10 +114,4 @@ public interface RegistryConstants {
     String ZONE_KEY = "zone";
 
     String REGISTRY_SERVICE_REFERENCE_PATH = "org.apache.dubbo.registry.RegistryService";
-
-    String INIT = "INIT";
-
-    String MIGRATION_MULTI_REGISTRY = "MIGRATION_MULTI_REGISTRY";
-
-    String LOADBALANCE_AMONG_REGISTRIES = "random";
 }

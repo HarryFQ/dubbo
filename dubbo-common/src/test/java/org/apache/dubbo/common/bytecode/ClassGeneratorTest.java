@@ -16,8 +16,6 @@
  */
 package org.apache.dubbo.common.bytecode;
 
-import org.apache.dubbo.common.utils.ReflectUtils;
-
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -37,7 +35,7 @@ public class ClassGeneratorTest {
         Bean b = new Bean();
         Field fname = null, fs[] = Bean.class.getDeclaredFields();
         for (Field f : fs) {
-            ReflectUtils.makeAccessible(f);
+            f.setAccessible(true);
             if (f.getName().equals("name"))
                 fname = f;
         }
@@ -67,7 +65,7 @@ public class ClassGeneratorTest {
         Bean b = new Bean();
         Field fname = null, fs[] = Bean.class.getDeclaredFields();
         for (Field f : fs) {
-            ReflectUtils.makeAccessible(f);
+            f.setAccessible(true);
             if (f.getName().equals("name"))
                 fname = f;
         }

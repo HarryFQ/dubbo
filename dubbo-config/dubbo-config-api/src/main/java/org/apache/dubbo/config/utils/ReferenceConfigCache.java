@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.apache.dubbo.common.BaseServiceMetadata.buildServiceKey;
-
 /**
  * A simple util class for cache {@link ReferenceConfigBase}.
  * <p>
@@ -56,7 +54,15 @@ public class ReferenceConfigCache {
             throw new IllegalArgumentException("No interface info in ReferenceConfig" + referenceConfig);
         }
 
-        return buildServiceKey(iName, referenceConfig.getGroup(), referenceConfig.getVersion());
+        StringBuilder ret = new StringBuilder();
+        if (!StringUtils.isBlank(referenceConfig.getGroup())) {
+            ret.append(referenceConfig.getGroup()).append("/");
+        }
+        ret.append(iName);
+        if (!StringUtils.isBlank(referenceConfig.getVersion())) {
+            ret.append(":").append(referenceConfig.getVersion());
+        }
+        return ret.toString();
     };
 
     static final ConcurrentMap<String, ReferenceConfigCache> CACHE_HOLDER = new ConcurrentHashMap<String, ReferenceConfigCache>();

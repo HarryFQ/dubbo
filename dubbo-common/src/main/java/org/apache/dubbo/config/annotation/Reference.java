@@ -16,9 +16,6 @@
  */
 package org.apache.dubbo.config.annotation;
 
-import org.apache.dubbo.common.constants.ClusterRules;
-import org.apache.dubbo.common.constants.LoadbalanceRules;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -126,9 +123,9 @@ public @interface Reference {
     String stub() default "";
 
     /**
-     * Cluster strategy, you can use {@link org.apache.dubbo.common.constants.ClusterRules#FAIL_FAST} ……
+     * Cluster strategy, legal values include: failover, failfast, failsafe, failback, forking
      */
-    String cluster() default ClusterRules.EMPTY;
+    String cluster() default "";
 
     /**
      * Maximum connections service provider can accept, default value is 0 - connection is shared
@@ -170,9 +167,11 @@ public @interface Reference {
     int retries() default 2;
 
     /**
-     * Load balance strategy, you can use {@link org.apache.dubbo.common.constants.LoadbalanceRules#RANDOM} ……
+     * Load balance strategy, legal values include: random, roundrobin, leastactive
+     * <p>
+     * see Constants#DEFAULT_LOADBALANCE
      */
-    String loadbalance() default LoadbalanceRules.EMPTY;
+    String loadbalance() default "";
 
     /**
      * Whether to enable async invocation, default value is false

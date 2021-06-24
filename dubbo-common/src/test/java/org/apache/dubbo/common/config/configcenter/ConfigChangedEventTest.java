@@ -28,28 +28,28 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class ConfigChangedEventTest {
 
-    private static final String KEY = "k";
+    private static final String key = "k";
 
-    private static final String GROUP = "g";
+    private static final String group = "g";
 
-    private static final String CONTENT = "c";
+    private static final String content = "c";
 
     @Test
     public void testGetter() {
 
-        ConfigChangedEvent event = new ConfigChangedEvent(KEY, GROUP, CONTENT);
+        ConfigChangedEvent event = new ConfigChangedEvent(key, group, content);
 
-        assertEquals(KEY, event.getKey());
-        assertEquals(GROUP, event.getGroup());
-        assertEquals(CONTENT, event.getContent());
+        assertEquals(key, event.getKey());
+        assertEquals(group, event.getGroup());
+        assertEquals(content, event.getContent());
         assertEquals(ConfigChangeType.MODIFIED, event.getChangeType());
         assertEquals("k,g", event.getSource());
 
-        event = new ConfigChangedEvent(KEY, GROUP, CONTENT, ConfigChangeType.ADDED);
+        event = new ConfigChangedEvent(key, group, content, ConfigChangeType.ADDED);
 
-        assertEquals(KEY, event.getKey());
-        assertEquals(GROUP, event.getGroup());
-        assertEquals(CONTENT, event.getContent());
+        assertEquals(key, event.getKey());
+        assertEquals(group, event.getGroup());
+        assertEquals(content, event.getContent());
         assertEquals(ConfigChangeType.ADDED, event.getChangeType());
         assertEquals("k,g", event.getSource());
     }
@@ -57,15 +57,15 @@ public class ConfigChangedEventTest {
     @Test
     public void testEqualsAndHashCode() {
         for (ConfigChangeType type : ConfigChangeType.values()) {
-            assertEquals(new ConfigChangedEvent(KEY, GROUP, CONTENT, type), new ConfigChangedEvent(KEY, GROUP, CONTENT, type));
-            assertEquals(new ConfigChangedEvent(KEY, GROUP, CONTENT, type).hashCode(), new ConfigChangedEvent(KEY, GROUP, CONTENT, type).hashCode());
-            assertEquals(new ConfigChangedEvent(KEY, GROUP, CONTENT, type).toString(), new ConfigChangedEvent(KEY, GROUP, CONTENT, type).toString());
+            assertEquals(new ConfigChangedEvent(key, group, content, type), new ConfigChangedEvent(key, group, content, type));
+            assertEquals(new ConfigChangedEvent(key, group, content, type).hashCode(), new ConfigChangedEvent(key, group, content, type).hashCode());
+            assertEquals(new ConfigChangedEvent(key, group, content, type).toString(), new ConfigChangedEvent(key, group, content, type).toString());
         }
     }
 
     @Test
     public void testToString() {
-        ConfigChangedEvent event = new ConfigChangedEvent(KEY, GROUP, CONTENT);
+        ConfigChangedEvent event = new ConfigChangedEvent(key, group, content);
         assertNotNull(event.toString());
     }
 }

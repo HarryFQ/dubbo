@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.common.extension.ext1;
 
-import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Adaptive;
 import org.apache.dubbo.common.extension.SPI;
 
@@ -27,11 +26,11 @@ import org.apache.dubbo.common.extension.SPI;
 public interface SimpleExt {
     // @Adaptive example, do not specify a explicit key.
     @Adaptive
-    String echo(URL url, String s);
+    String echo(String echo, String s);
 
     @Adaptive({"key1", "key2"})
-    String yell(URL url, String s);
+    String yell(String yell, String s);
 
     // no @Adaptive
-    String bang(URL url, int i);
+    String bang(String bang, int i);
 }

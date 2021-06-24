@@ -62,11 +62,6 @@ public interface FieldUtils {
                 break;
             }
         }
-
-        if (field == null) {
-           throw new IllegalStateException(String.format("cannot find field %s,field is null", fieldName));
-        }
-
         return field;
     }
 
@@ -100,13 +95,16 @@ public interface FieldUtils {
      * @return the value of  the specified {@link Field}
      */
     static <T> T getFieldValue(Object object, Field field) {
+        boolean accessible = field.isAccessible();
         Object value = null;
         try {
-            ReflectUtils.makeAccessible(field);
+            if (!accessible) {
+                field.setAccessible(true);
+            }
             value = field.get(object);
         } catch (IllegalAccessException ignored) {
         } finally {
-            ReflectUtils.makeAccessible(field);
+            field.setAccessible(accessible);
         }
         return (T) value;
     }
@@ -132,14 +130,17 @@ public interface FieldUtils {
      * @return the previous value of the specified {@link Field}
      */
     static <T> T setFieldValue(Object object, Field field, T value) {
+        boolean accessible = field.isAccessible();
         Object previousValue = null;
         try {
-            ReflectUtils.makeAccessible(field);
+            if (!accessible) {
+                field.setAccessible(true);
+            }
             previousValue = field.get(object);
             field.set(object, value);
         } catch (IllegalAccessException ignored) {
         } finally {
-            ReflectUtils.makeAccessible(field);
+            field.setAccessible(accessible);
         }
         return (T) previousValue;
     }

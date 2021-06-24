@@ -410,17 +410,12 @@ public class ConfigTest {
 
     @Test
     public void testInitReference() throws Exception {
-        String configPath = ConfigTest.class.getPackage().getName().replace('.', '/');
-        ClassPathXmlApplicationContext providerContext = new ClassPathXmlApplicationContext(configPath + "/demo-provider.xml", configPath+"/demo-provider-properties.xml");
+        ClassPathXmlApplicationContext providerContext = new ClassPathXmlApplicationContext(ConfigTest.class.getPackage().getName().replace('.', '/') + "/demo-provider.xml");
         providerContext.start();
         try {
-            ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(configPath + "/init-reference.xml");
+            ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(ConfigTest.class.getPackage().getName().replace('.', '/') + "/init-reference.xml");
             ctx.start();
             try {
-
-                ReferenceBean referenceBean = ctx.getBean("&demoService", ReferenceBean.class);
-                Assertions.assertEquals("demo_tag", referenceBean.getTag());
-
                 DemoService demoService = (DemoService) ctx.getBean("demoService");
                 assertEquals("say:world", demoService.sayName("world"));
             } finally {

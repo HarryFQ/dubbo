@@ -43,7 +43,7 @@ import static org.apache.dubbo.config.spring.util.DubboBeanUtils.registerCommonB
 
 /**
  * DubboNamespaceHandler
- *
+ * TODO  dubbo 服务解析xml 文件时解析相关
  * @export
  */
 public class DubboNamespaceHandler extends NamespaceHandlerSupport implements ConfigurableSourceBeanMetadataElement {
@@ -54,19 +54,28 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport implements Co
 
     @Override
     public void init() {
+        // 应用相关的
         registerBeanDefinitionParser("application", new DubboBeanDefinitionParser(ApplicationConfig.class, true));
         registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
+        // 注册中心相关的
         registerBeanDefinitionParser("registry", new DubboBeanDefinitionParser(RegistryConfig.class, true));
         registerBeanDefinitionParser("config-center", new DubboBeanDefinitionParser(ConfigCenterBean.class, true));
         registerBeanDefinitionParser("metadata-report", new DubboBeanDefinitionParser(MetadataReportConfig.class, true));
+        // 监控相关的
         registerBeanDefinitionParser("monitor", new DubboBeanDefinitionParser(MonitorConfig.class, true));
         registerBeanDefinitionParser("metrics", new DubboBeanDefinitionParser(MetricsConfig.class, true));
         registerBeanDefinitionParser("ssl", new DubboBeanDefinitionParser(SslConfig.class, true));
+        // provider 配置相关的
         registerBeanDefinitionParser("provider", new DubboBeanDefinitionParser(ProviderConfig.class, true));
+        // consumer 配置相关的
         registerBeanDefinitionParser("consumer", new DubboBeanDefinitionParser(ConsumerConfig.class, true));
+        // 协议 相关
         registerBeanDefinitionParser("protocol", new DubboBeanDefinitionParser(ProtocolConfig.class, true));
+        // producer 相关的，比如暴露
         registerBeanDefinitionParser("service", new DubboBeanDefinitionParser(ServiceBean.class, true));
-        registerBeanDefinitionParser("reference", new DubboBeanDefinitionParser(ReferenceBean.class, true));
+        // 消费者相关的
+        registerBeanDefinitionParser("reference", new DubboBeanDefinitionParser(ReferenceBean.class, false));
+        // JavaBean  装配相关的
         registerBeanDefinitionParser("annotation", new AnnotationBeanDefinitionParser());
     }
 

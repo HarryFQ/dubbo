@@ -51,7 +51,7 @@ public interface MethodUtils {
      * @param method the method to check
      * @return whether the given method is setter method
      */
-    static boolean isSetter(Method method) {
+    public static boolean isSetter(Method method) {
         return method.getName().startsWith("set")
                 && !"set".equals(method.getName())
                 && Modifier.isPublic(method.getModifiers())
@@ -66,7 +66,7 @@ public interface MethodUtils {
      * @param method the method to check
      * @return whether the given method is getter method
      */
-    static boolean isGetter(Method method) {
+    public static boolean isGetter(Method method) {
         String name = method.getName();
         return (name.startsWith("get") || name.startsWith("is"))
                 && !"get".equals(name) && !"is".equals(name)
@@ -83,7 +83,7 @@ public interface MethodUtils {
      * @param method the method to check
      * @return whether the given method is meta method
      */
-    static boolean isMetaMethod(Method method) {
+    public static boolean isMetaMethod(Method method) {
         String name = method.getName();
         if (!(name.startsWith("get") || name.startsWith("is"))) {
             return false;
@@ -114,7 +114,7 @@ public interface MethodUtils {
      * @param method the method to check
      * @return whether the given method is deprecated method
      */
-    static boolean isDeprecated(Method method) {
+    public static boolean isDeprecated(Method method) {
         return method.getAnnotation(Deprecated.class) != null;
     }
 
@@ -276,13 +276,14 @@ public interface MethodUtils {
         Method method = findMethod(type, methodName, parameterTypes);
         T value = null;
 
-        if (method == null) {
-            throw new IllegalStateException(String.format("cannot find method %s,class: %s", methodName, type.getName()));
-        }
-
         try {
-            ReflectUtils.makeAccessible(method);
+            final boolean isAccessible = method.isAccessible();
+
+            if (!isAccessible) {
+                method.setAccessible(true);
+            }
             value = (T) method.invoke(object, methodParameters);
+            method.setAccessible(isAccessible);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }

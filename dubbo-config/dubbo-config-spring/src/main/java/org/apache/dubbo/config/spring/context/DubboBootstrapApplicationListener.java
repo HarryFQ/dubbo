@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.config.spring.context;
 
-import org.apache.dubbo.config.DubboShutdownHook;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 
 import com.alibaba.spring.context.OnceApplicationContextEventListener;
@@ -44,21 +43,13 @@ public class DubboBootstrapApplicationListener extends OnceApplicationContextEve
 
     private final DubboBootstrap dubboBootstrap;
 
-    public DubboBootstrapApplicationListener() {
-        this.dubboBootstrap = DubboBootstrap.getInstance();
-    }
-
     public DubboBootstrapApplicationListener(ApplicationContext applicationContext) {
         super(applicationContext);
         this.dubboBootstrap = DubboBootstrap.getInstance();
-        DubboBootstrapStartStopListenerSpringAdapter.applicationContext = applicationContext;
     }
 
     @Override
     public void onApplicationContextEvent(ApplicationContextEvent event) {
-        if (DubboBootstrapStartStopListenerSpringAdapter.applicationContext == null) {
-            DubboBootstrapStartStopListenerSpringAdapter.applicationContext = event.getApplicationContext();
-        }
         if (event instanceof ContextRefreshedEvent) {
             onContextRefreshedEvent((ContextRefreshedEvent) event);
         } else if (event instanceof ContextClosedEvent) {
@@ -71,7 +62,7 @@ public class DubboBootstrapApplicationListener extends OnceApplicationContextEve
     }
 
     private void onContextClosedEvent(ContextClosedEvent event) {
-        DubboShutdownHook.getDubboShutdownHook().run();
+        dubboBootstrap.stop();
     }
 
     @Override

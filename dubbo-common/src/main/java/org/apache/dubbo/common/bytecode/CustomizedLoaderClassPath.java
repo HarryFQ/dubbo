@@ -38,20 +38,19 @@ import java.net.URL;
  * @author Shigeru Chiba
  */
 public class CustomizedLoaderClassPath implements ClassPath {
-    private WeakReference<ClassLoader> clref;
+    private WeakReference clref;
 
     /**
      * Creates a search path representing a class loader.
      */
     public CustomizedLoaderClassPath(ClassLoader cl) {
-        clref = new WeakReference<>(cl);
+        clref = new WeakReference(cl);
     }
 
     public String toString() {
-        ClassLoader cl = null;
-        if (clref != null) {
+        Object cl = null;
+        if (clref != null)
             cl = clref.get();
-        }
 
         return cl == null ? "<null>" : cl.toString();
     }
@@ -63,7 +62,7 @@ public class CustomizedLoaderClassPath implements ClassPath {
      */
     public InputStream openClassfile(String classname) {
         String cname = classname.replace('.', '/') + ".class";
-        ClassLoader cl = clref.get();
+        ClassLoader cl = (ClassLoader) clref.get();
         if (cl == null) {
             return null;        // not found
         } else {
@@ -84,7 +83,7 @@ public class CustomizedLoaderClassPath implements ClassPath {
      */
     public URL find(String classname) {
         String cname = classname.replace('.', '/') + ".class";
-        ClassLoader cl = clref.get();
+        ClassLoader cl = (ClassLoader) clref.get();
         if (cl == null) {
             return null;        // not found
         } else {

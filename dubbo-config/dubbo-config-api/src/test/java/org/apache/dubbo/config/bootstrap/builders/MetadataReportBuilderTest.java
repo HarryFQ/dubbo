@@ -124,17 +124,10 @@ class MetadataReportBuilderTest {
     }
 
     @Test
-    void file() {
-        MetadataReportBuilder builder = new MetadataReportBuilder();
-        builder.file("/tmp");
-        Assertions.assertEquals(builder.build().getFile(),"/tmp");
-    }
-
-    @Test
     void build() {
         MetadataReportBuilder builder = new MetadataReportBuilder();
         builder.address("address").username("username").password("password").timeout(1000).group("group")
-                .retryTimes(1).retryPeriod(2).cycleReport(true).syncReport(false).file("file")
+                .retryTimes(1).retryPeriod(2).cycleReport(true).syncReport(false)
                 .appendParameter("default.num", "one").id("id").prefix("prefix");
 
         MetadataReportConfig config = builder.build();
@@ -149,7 +142,6 @@ class MetadataReportBuilderTest {
         Assertions.assertEquals("username", config.getUsername());
         Assertions.assertEquals("password", config.getPassword());
         Assertions.assertEquals("group", config.getGroup());
-        Assertions.assertEquals("file", config.getFile());
         Assertions.assertTrue(config.getParameters().containsKey("default.num"));
         Assertions.assertEquals("one", config.getParameters().get("default.num"));
         Assertions.assertEquals("id", config.getId());

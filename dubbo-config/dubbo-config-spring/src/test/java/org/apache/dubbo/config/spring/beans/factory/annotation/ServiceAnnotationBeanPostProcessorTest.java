@@ -16,11 +16,10 @@
  */
 package org.apache.dubbo.config.spring.beans.factory.annotation;
 
-import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.apache.dubbo.config.spring.ServiceBean;
 import org.apache.dubbo.config.spring.api.HelloService;
+import org.apache.dubbo.rpc.model.ApplicationModel;
 
-import org.apache.dubbo.config.spring.api.LazyInitHelloService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,9 +54,14 @@ import java.util.Map;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ServiceAnnotationBeanPostProcessorTest {
 
+    @BeforeEach
+    public void setUp() {
+        ApplicationModel.reset();
+    }
+
     @AfterEach
     public void tearDown() {
-        DubboBootstrap.reset();
+        ApplicationModel.reset();
     }
 
     @Autowired
@@ -77,10 +81,8 @@ public class ServiceAnnotationBeanPostProcessorTest {
         Assertions.assertEquals(2, helloServicesMap.size());
 
         Map<String, ServiceBean> serviceBeansMap = beanFactory.getBeansOfType(ServiceBean.class);
-        /**
-         * There are one {@link HelloService} and two {@link LazyInitHelloService} has 1
-         * */
-        Assertions.assertEquals(3, serviceBeansMap.size());
+
+        Assertions.assertEquals(2, serviceBeansMap.size());
 
         Map<String, ServiceAnnotationBeanPostProcessor> beanPostProcessorsMap =
                 beanFactory.getBeansOfType(ServiceAnnotationBeanPostProcessor.class);
@@ -96,10 +98,8 @@ public class ServiceAnnotationBeanPostProcessorTest {
     public void testMethodAnnotation() {
 
         Map<String, ServiceBean> serviceBeansMap = beanFactory.getBeansOfType(ServiceBean.class);
-        /**
-         * There are one {@link HelloService} and two {@link LazyInitHelloService} has 1
-         * */
-        Assertions.assertEquals(3, serviceBeansMap.size());
+
+        Assertions.assertEquals(2, serviceBeansMap.size());
 
         ServiceBean demoServiceBean = serviceBeansMap.get("ServiceBean:org.apache.dubbo.config.spring.api.DemoService:2.5.7");
 

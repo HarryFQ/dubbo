@@ -181,12 +181,7 @@ public final class Version {
                 return defaultVersion;
             }
 
-            URL location = codeSource.getLocation();
-            if (location == null){
-                logger.info("No location for class " + cls.getName() + " when getVersion, use default version " + defaultVersion);
-                return defaultVersion;
-            }
-            String file =  location.getFile();
+            String file = codeSource.getLocation().getFile();
             if (!StringUtils.isEmpty(file) && file.endsWith(".jar")) {
                 version = getFromFile(file);
             }

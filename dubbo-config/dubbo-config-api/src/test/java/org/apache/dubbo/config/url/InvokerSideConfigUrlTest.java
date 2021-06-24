@@ -151,7 +151,7 @@ public class InvokerSideConfigUrlTest extends UrlTestBase {
         verifyInvokerUrlGeneration(consumerConf, consumerConfTable);
     }
 
-    //@Test
+    @Test
     public void refConfUrlTest() {
         verifyInvokerUrlGeneration(refConf, refConfTable);
     }
@@ -208,8 +208,6 @@ public class InvokerSideConfigUrlTest extends UrlTestBase {
         try {
             refConf.destroy();
         } catch (Exception e) {
-        }finally {
-            servConf.unexport();
         }
     }
 

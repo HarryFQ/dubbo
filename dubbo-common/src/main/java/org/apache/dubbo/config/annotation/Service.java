@@ -17,9 +17,6 @@
 package org.apache.dubbo.config.annotation;
 
 
-import org.apache.dubbo.common.constants.ClusterRules;
-import org.apache.dubbo.common.constants.LoadbalanceRules;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -27,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_LOADBALANCE;
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_RETRIES;
 
 /**
@@ -130,9 +128,9 @@ public @interface Service {
     String stub() default "";
 
     /**
-     * Cluster strategy, you can use {@link org.apache.dubbo.common.constants.ClusterRules#FAIL_FAST} ……
+     * Cluster strategy, legal values include: failover, failfast, failsafe, failback, forking
      */
-    String cluster() default ClusterRules.EMPTY;
+    String cluster() default "";
 
     /**
      * How the proxy is generated, legal values include: jdk, javassist
@@ -179,9 +177,11 @@ public @interface Service {
     int retries() default DEFAULT_RETRIES;
 
     /**
-     * Load balance strategy, you can use {@link org.apache.dubbo.common.constants.LoadbalanceRules#RANDOM} ……
+     * Load balance strategy, legal values include: random, roundrobin, leastactive
+     *
+     * @see org.apache.dubbo.common.constants.CommonConstants#DEFAULT_LOADBALANCE
      */
-    String loadbalance() default LoadbalanceRules.RANDOM;
+    String loadbalance() default DEFAULT_LOADBALANCE;
 
     /**
      * Whether to enable async invocation, default value is false

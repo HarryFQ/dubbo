@@ -16,13 +16,12 @@
  */
 package org.apache.dubbo.common.compiler;
 
-import org.apache.dubbo.common.compiler.support.JavassistCompiler;
 import org.apache.dubbo.common.extension.SPI;
 
 /**
  * Compiler. (SPI, Singleton, ThreadSafe)
  */
-@SPI(JavassistCompiler.NAME)
+@SPI("javassist")
 public interface Compiler {
 
     /**

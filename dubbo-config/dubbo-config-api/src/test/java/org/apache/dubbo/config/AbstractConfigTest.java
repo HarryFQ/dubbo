@@ -17,7 +17,6 @@
 package org.apache.dubbo.config;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.config.api.Greeting;
 import org.apache.dubbo.config.support.Parameter;
 import org.apache.dubbo.config.utils.ConfigValidationUtils;
@@ -108,15 +107,6 @@ public class AbstractConfigTest {
     }*/
 
     @Test
-    public void testValidateProtocolConfig() {
-        ProtocolConfig protocolConfig = new ProtocolConfig();
-        protocolConfig.setCodec("exchange");
-        protocolConfig.setName("test");
-        protocolConfig.setHost("host");
-        ConfigValidationUtils.validateProtocolConfig(protocolConfig);
-    }
-
-    @Test
     public void testAppendParameters1() throws Exception {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("num", "ONE");
@@ -182,14 +172,12 @@ public class AbstractConfigTest {
 
     @Test
     public void checkMultiExtension1() throws Exception {
-        Assertions.assertThrows(IllegalStateException.class,
-                () -> ConfigValidationUtils.checkMultiExtension(Greeting.class, "hello", "default,world"));
+        Assertions.assertThrows(IllegalStateException.class, () -> ConfigValidationUtils.checkMultiExtension(Greeting.class, "hello", "default,world"));
     }
 
     @Test
     public void checkMultiExtension2() throws Exception {
-        Assertions.assertThrows(IllegalStateException.class,
-                () -> ConfigValidationUtils.checkMultiExtension(Greeting.class, "hello", "default,-world"));
+        Assertions.assertThrows(IllegalStateException.class, () -> ConfigValidationUtils.checkMultiExtension(Greeting.class, "hello", "default,-world"));
     }
 
     @Test
@@ -416,7 +404,6 @@ public class AbstractConfigTest {
             ApplicationModel.getEnvironment().setExternalConfigMap(external);
             ApplicationModel.getEnvironment().initialize();
 
-            ApplicationModel.getEnvironment().setConfigCenterFirst(true);
             overrideConfig.refresh();
 
             Assertions.assertEquals("external://127.0.0.1:2181", overrideConfig.getAddress());
@@ -454,7 +441,6 @@ public class AbstractConfigTest {
 
             ConfigCenterConfig configCenter = new ConfigCenterConfig();
             overrideConfig.setConfigCenter(configCenter);
-            ApplicationModel.getEnvironment().setConfigCenterFirst(true);
             // Load configuration from  system properties -> externalConfiguration -> RegistryConfig -> dubbo.properties
             overrideConfig.refresh();
 
@@ -916,11 +902,11 @@ public class AbstractConfigTest {
         try {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
             Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-            ReflectUtils.makeAccessible(theEnvironmentField);
+            theEnvironmentField.setAccessible(true);
             Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
             env.putAll(newenv);
             Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
-            ReflectUtils.makeAccessible(theCaseInsensitiveEnvironmentField);
+            theCaseInsensitiveEnvironmentField.setAccessible(true);
             Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
             cienv.putAll(newenv);
         } catch (NoSuchFieldException e) {
@@ -929,7 +915,7 @@ public class AbstractConfigTest {
             for (Class cl : classes) {
                 if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
                     Field field = cl.getDeclaredField("m");
-                    ReflectUtils.makeAccessible(field);
+                    field.setAccessible(true);
                     Object obj = field.get(env);
                     Map<String, String> map = (Map<String, String>) obj;
                     map.clear();

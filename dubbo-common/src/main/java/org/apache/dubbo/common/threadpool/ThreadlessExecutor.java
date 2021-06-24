@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * The most important difference between this Executor and other normal Executor is that this one doesn't manage
  * any thread.
- * <p>
+ *
  * Tasks submitted to this executor through {@link #execute(Runnable)} will not get scheduled to a specific thread, though normal executors always do the schedule.
  * Those tasks are stored in a blocking queue and will only be executed when a thread calls {@link #waitAndDrain()}, the thread executing the task
  * is exactly the same as the one calling waitAndDrain.
@@ -86,13 +86,7 @@ public class ThreadlessExecutor extends AbstractExecutorService {
             return;
         }
 
-        Runnable runnable;
-        try {
-            runnable = queue.take();
-        }catch (InterruptedException e){
-            waiting = false;
-            throw e;
-        }
+        Runnable runnable = queue.take();
 
         synchronized (lock) {
             waiting = false;
@@ -101,7 +95,12 @@ public class ThreadlessExecutor extends AbstractExecutorService {
 
         runnable = queue.poll();
         while (runnable != null) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                logger.info(t);
+
+            }
             runnable = queue.poll();
         }
         // mark the status of ThreadlessExecutor as finished.
@@ -132,7 +131,6 @@ public class ThreadlessExecutor extends AbstractExecutorService {
      */
     @Override
     public void execute(Runnable runnable) {
-        runnable = new RunnableWrapper(runnable);
         synchronized (lock) {
             if (!waiting) {
                 sharedExecutor.execute(runnable);
@@ -181,22 +179,5 @@ public class ThreadlessExecutor extends AbstractExecutorService {
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         return false;
-    }
-
-    private static class RunnableWrapper implements Runnable {
-        private Runnable runnable;
-
-        public RunnableWrapper(Runnable runnable) {
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void run() {
-            try {
-                runnable.run();
-            } catch (Throwable t) {
-                logger.info(t);
-            }
-        }
     }
 }

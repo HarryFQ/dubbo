@@ -37,7 +37,7 @@ public class Ext6Impl1 implements Ext6 {
     }
 
     public String echo(URL url, String s) {
-        return "Ext6Impl1-echo-" + ext1.echo(url, s);
+        return "Ext6Impl1-echo-" + ext1.echo(url.toString(), s);
     }
 
 

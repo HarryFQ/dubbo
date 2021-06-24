@@ -26,20 +26,20 @@ import java.util.Map;
 
 public class MockRegistryFactory implements RegistryFactory {
 
-    private static final Map<URL, Registry> REGISTRIES = new HashMap<URL, Registry>();
+    private static final Map<URL, Registry> registries = new HashMap<URL, Registry>();
 
     public static Collection<Registry> getCachedRegistry() {
-        return REGISTRIES.values();
+        return registries.values();
     }
 
     public static void cleanCachedRegistry() {
-        REGISTRIES.clear();
+        registries.clear();
     }
 
     @Override
     public Registry getRegistry(URL url) {
         MockRegistry registry = new MockRegistry(url);
-        REGISTRIES.put(url, registry);
+        registries.put(url, registry);
         return registry;
     }
 }

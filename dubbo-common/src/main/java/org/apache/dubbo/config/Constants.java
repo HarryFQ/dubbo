@@ -30,8 +30,6 @@ public interface Constants {
 
     String LAYER_KEY = "layer";
 
-    String STUB_KEY = "stub";
-
     /**
      * General
      */
@@ -81,7 +79,6 @@ public interface Constants {
 
     String MULTICAST = "multicast";
 
-    String MULTIPLE = "multiple";
 
     String DUBBO_IP_TO_REGISTRY = "DUBBO_IP_TO_REGISTRY";
 
@@ -110,19 +107,12 @@ public interface Constants {
     String SHUTDOWN_TIMEOUT_KEY = "shutdown.timeout";
 
 
-    String PROTOCOLS_PREFIX = "dubbo.protocols.";
+    String PROTOCOLS_SUFFIX = "dubbo.protocols.";
 
 
-    String REGISTRIES_PREFIX = "dubbo.registries.";
+    String REGISTRIES_SUFFIX = "dubbo.registries.";
 
     String ZOOKEEPER_PROTOCOL = "zookeeper";
 
     String REGISTER_KEY = "register";
-
-    String IGNORE_CHECK_KEYS = "ignoreCheckKeys";
-
-    /**
-     * Url merge processor key
-     */
-    String URL_MERGE_PROCESSOR_KEY = "url-merge-processor";
 }

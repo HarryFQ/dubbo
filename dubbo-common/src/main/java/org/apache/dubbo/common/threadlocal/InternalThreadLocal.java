@@ -58,7 +58,7 @@ public class InternalThreadLocal<V> {
             if (v != null && v != InternalThreadLocalMap.UNSET) {
                 Set<InternalThreadLocal<?>> variablesToRemove = (Set<InternalThreadLocal<?>>) v;
                 InternalThreadLocal<?>[] variablesToRemoveArray =
-                        variablesToRemove.toArray(new InternalThreadLocal[0]);
+                        variablesToRemove.toArray(new InternalThreadLocal[variablesToRemove.size()]);
                 for (InternalThreadLocal<?> tlv : variablesToRemoveArray) {
                     tlv.remove(threadLocalMap);
                 }

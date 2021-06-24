@@ -21,7 +21,6 @@ import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.status.Status;
 import org.apache.dubbo.common.status.StatusChecker;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.config.spring.extension.SpringExtensionFactory;
 
 import org.springframework.context.ApplicationContext;
@@ -80,7 +79,9 @@ public class SpringStatusChecker implements StatusChecker {
                 }
             }
             if (method != null) {
-                ReflectUtils.makeAccessible(method);
+                if (!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
                 String[] configs = (String[]) method.invoke(context, new Object[0]);
                 if (configs != null && configs.length > 0) {
                     for (String config : configs) {

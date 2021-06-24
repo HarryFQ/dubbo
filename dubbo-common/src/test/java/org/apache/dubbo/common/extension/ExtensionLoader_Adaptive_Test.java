@@ -60,7 +60,7 @@ public class ExtensionLoader_Adaptive_Test {
             Map<String, String> map = new HashMap<String, String>();
             URL url = new URL("p1", "1.2.3.4", 1010, "path1", map);
 
-            String echo = ext.echo(url, "haha");
+            String echo = ext.echo(url.toString(), "haha");
             assertEquals("Ext1Impl1-echo", echo);
         }
 
@@ -71,7 +71,7 @@ public class ExtensionLoader_Adaptive_Test {
             map.put("simple.ext", "impl2");
             URL url = new URL("p1", "1.2.3.4", 1010, "path1", map);
 
-            String echo = ext.echo(url, "haha");
+            String echo = ext.echo(url.toString(), "haha");
             assertEquals("Ext1Impl2-echo", echo);
         }
     }
@@ -84,11 +84,11 @@ public class ExtensionLoader_Adaptive_Test {
         map.put("key2", "impl2");
         URL url = new URL("p1", "1.2.3.4", 1010, "path1", map);
 
-        String echo = ext.yell(url, "haha");
+        String echo = ext.yell(url.toString(), "haha");
         assertEquals("Ext1Impl2-yell", echo);
 
         url = url.addParameter("key1", "impl3"); // note: URL is value's type
-        echo = ext.yell(url, "haha");
+        echo = ext.yell(url.toString(), "haha");
         assertEquals("Ext1Impl3-yell", echo);
     }
 
@@ -169,7 +169,7 @@ public class ExtensionLoader_Adaptive_Test {
         URL url = new URL("p1", "1.2.3.4", 1010, "path1", map);
 
         try {
-            ext.bang(url, 33);
+            ext.bang(url.toString(), 33);
             fail();
         } catch (UnsupportedOperationException expected) {
             assertThat(expected.getMessage(), containsString("method "));

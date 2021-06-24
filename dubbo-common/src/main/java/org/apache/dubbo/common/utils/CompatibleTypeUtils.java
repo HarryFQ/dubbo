@@ -111,23 +111,17 @@ public class CompatibleTypeUtils {
                             + DATE_FORMAT + ", cause: " + e.getMessage(), e);
                 }
             }
-            if (type == java.time.LocalDateTime.class) {
-                if (StringUtils.isEmpty(string)) {
-                    return null;
+            if (type == java.time.LocalDateTime.class || type == java.time.LocalDate.class
+                    || type == java.time.LocalTime.class) {
+
+                LocalDateTime localDateTime = LocalDateTime.parse(string);
+                if (type == java.time.LocalDate.class) {
+                    return localDateTime.toLocalDate();
                 }
-                return LocalDateTime.parse(string);
-            }
-            if (type == java.time.LocalDate.class) {
-                if (StringUtils.isEmpty(string)) {
-                    return null;
+                if (type == java.time.LocalTime.class) {
+                    return localDateTime.toLocalTime();
                 }
-                return java.time.LocalDate.parse(string);
-            }
-            if (type == java.time.LocalTime.class) {
-                if (StringUtils.isEmpty(string)) {
-                    return null;
-                }
-                return LocalDateTime.parse(string).toLocalTime();
+                return localDateTime;
             }
             if (type == Class.class) {
                 try {
@@ -206,19 +200,19 @@ public class CompatibleTypeUtils {
             }
         }
         if (value.getClass().isArray() && Collection.class.isAssignableFrom(type)) {
-            int length = Array.getLength(value);
             Collection collection;
             if (!type.isInterface()) {
                 try {
                     collection = (Collection) type.newInstance();
                 } catch (Throwable e) {
-                    collection = new ArrayList<Object>(length);
+                    collection = new ArrayList<Object>();
                 }
             } else if (type == Set.class) {
-                collection = new HashSet<Object>(Math.max((int) (length/.75f) + 1, 16));
+                collection = new HashSet<Object>();
             } else {
-                collection = new ArrayList<Object>(length);
+                collection = new ArrayList<Object>();
             }
+            int length = Array.getLength(value);
             for (int i = 0; i < length; i++) {
                 collection.add(Array.get(value, i));
             }

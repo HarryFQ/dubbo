@@ -66,7 +66,9 @@ public class FutureAdapter<V> implements Future<V> {
             public Object get() throws RemotingException {
                 try {
                     return future.get();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (InterruptedException e) {
+                    throw new RemotingException(e);
+                } catch (ExecutionException e) {
                     throw new RemotingException(e);
                 }
             }
@@ -75,7 +77,11 @@ public class FutureAdapter<V> implements Future<V> {
             public Object get(int timeoutInMillis) throws RemotingException {
                 try {
                     return future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException | TimeoutException | ExecutionException e) {
+                } catch (InterruptedException e) {
+                    throw new RemotingException(e);
+                } catch (ExecutionException e) {
+                    throw new RemotingException(e);
+                } catch (TimeoutException e) {
                     throw new RemotingException(e);
                 }
             }

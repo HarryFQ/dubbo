@@ -16,9 +16,7 @@
  */
 package org.apache.dubbo.config.spring.beans.factory.config;
 
-import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.AbstractConfig;
-import org.apache.dubbo.config.ProtocolConfig;
 
 import com.alibaba.spring.beans.factory.config.GenericBeanPostProcessorAdapter;
 import org.springframework.beans.BeansException;
@@ -56,14 +54,7 @@ public class DubboConfigDefaultPropertyValueBeanPostProcessor extends GenericBea
     protected void processBeforeInitialization(AbstractConfig dubboConfigBean, String beanName) throws BeansException {
         // [Feature] https://github.com/apache/dubbo/issues/5721
         setBeanNameAsDefaultValue(dubboConfigBean, "id", beanName);
-        if (dubboConfigBean instanceof ProtocolConfig) {
-            ProtocolConfig config = (ProtocolConfig) dubboConfigBean;
-            if (StringUtils.isEmpty(config.getName())) {
-                config.setName("dubbo");
-            }
-        } else {
-            setBeanNameAsDefaultValue(dubboConfigBean, "name", beanName);
-        }
+        setBeanNameAsDefaultValue(dubboConfigBean, "name", beanName);
     }
 
     @Override

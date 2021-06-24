@@ -62,6 +62,11 @@ public class ModuleConfig extends AbstractConfig {
      */
     private MonitorConfig monitor;
 
+    /**
+     * If it's default
+     */
+    private Boolean isDefault;
+
     public ModuleConfig() {
     }
 
@@ -135,6 +140,14 @@ public class ModuleConfig extends AbstractConfig {
 
     public void setMonitor(String monitor) {
         this.monitor = new MonitorConfig(monitor);
+    }
+
+    public Boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
 }

@@ -25,11 +25,9 @@ import java.util.Map;
 
 import static org.apache.dubbo.common.constants.CommonConstants.EXTRA_KEYS_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.SHUTDOWN_WAIT_KEY;
-import static org.apache.dubbo.common.constants.CommonConstants.PREFERRED_KEY;
-import static org.apache.dubbo.common.constants.RegistryConstants.REGISTRY_KEY;
 import static org.apache.dubbo.common.constants.RemotingConstants.BACKUP_KEY;
 import static org.apache.dubbo.common.utils.PojoUtils.updatePropertyIfAbsent;
-import static org.apache.dubbo.config.Constants.REGISTRIES_PREFIX;
+import static org.apache.dubbo.config.Constants.REGISTRIES_SUFFIX;
 
 /**
  * RegistryConfig
@@ -39,7 +37,6 @@ import static org.apache.dubbo.config.Constants.REGISTRIES_PREFIX;
 public class RegistryConfig extends AbstractConfig {
 
     public static final String NO_AVAILABLE = "N/A";
-    public static final String PREFER_REGISTRY_KEY = REGISTRY_KEY + "." + PREFERRED_KEY;
     private static final long serialVersionUID = 5508512956753757169L;
 
     /**
@@ -138,6 +135,11 @@ public class RegistryConfig extends AbstractConfig {
      * The customized parameters
      */
     private Map<String, String> parameters;
+
+    /**
+     * Whether it's default
+     */
+    private Boolean isDefault;
 
     /**
      * Simple the registry. both useful for provider and consumer
@@ -446,6 +448,14 @@ public class RegistryConfig extends AbstractConfig {
         }
     }
 
+    public Boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
     public Boolean getSimplified() {
         return simplified;
     }
@@ -489,7 +499,6 @@ public class RegistryConfig extends AbstractConfig {
         this.accepts = accepts;
     }
 
-    @Parameter(key = PREFER_REGISTRY_KEY)
     public Boolean getPreferred() {
         return preferred;
     }
@@ -510,7 +519,7 @@ public class RegistryConfig extends AbstractConfig {
     public void refresh() {
         super.refresh();
         if (StringUtils.isNotEmpty(this.getId())) {
-            this.setPrefix(REGISTRIES_PREFIX);
+            this.setPrefix(REGISTRIES_SUFFIX);
             super.refresh();
         }
     }

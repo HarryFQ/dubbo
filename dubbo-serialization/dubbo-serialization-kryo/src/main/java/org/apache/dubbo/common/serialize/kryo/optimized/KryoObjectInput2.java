@@ -27,8 +27,6 @@ import com.esotericsoftware.kryo.io.Input;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Kryo object input implementation, kryo object can be clean
@@ -113,7 +111,7 @@ public class KryoObjectInput2 implements ObjectInput, Cleanable {
             if (len < 0) {
                 return null;
             } else if (len == 0) {
-                return new byte[] {};
+                return new byte[]{};
             } else {
                 return input.readBytes(len);
             }
@@ -136,7 +134,7 @@ public class KryoObjectInput2 implements ObjectInput, Cleanable {
         try {
             return kryo.readObjectOrNull(input, String.class);
         } catch (KryoException e) {
-            throw new IOException("Kryo serialization must know the input type when deserialize.", e);
+            throw new UnsupportedOperationException("Kryo serialization must know the input type when deserialize.", e);
         }
     }
 
@@ -147,21 +145,13 @@ public class KryoObjectInput2 implements ObjectInput, Cleanable {
 
     @Override
     public Object readEvent() throws IOException, ClassNotFoundException {
-        try {
-            return kryo.readObjectOrNull(input, String.class);
-        } catch (KryoException e) {
-            throw new IOException(e);
-        }
+        return kryo.readObjectOrNull(input, String.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readObject(Class<T> clazz) throws IOException, ClassNotFoundException {
-        try {
-            return kryo.readObjectOrNull(input, clazz);
-        } catch (KryoException e) {
-            throw new IOException(e);
-        }
+        return kryo.readObjectOrNull(input, clazz);
     }
 
     @Override
@@ -174,10 +164,5 @@ public class KryoObjectInput2 implements ObjectInput, Cleanable {
     public void cleanup() {
         KryoUtils.release(kryo);
         kryo = null;
-    }
-
-    @Override
-    public Map<String, Object> readAttachments() throws IOException, ClassNotFoundException {
-        return readObject(HashMap.class);
     }
 }

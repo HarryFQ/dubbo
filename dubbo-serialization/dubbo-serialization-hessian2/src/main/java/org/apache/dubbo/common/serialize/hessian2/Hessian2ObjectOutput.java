@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.common.serialize.hessian2;
 
-import org.apache.dubbo.common.serialize.Cleanable;
 import org.apache.dubbo.common.serialize.ObjectOutput;
 import org.apache.dubbo.common.serialize.hessian2.dubbo.Hessian2FactoryInitializer;
 
@@ -28,7 +27,7 @@ import java.io.OutputStream;
 /**
  * Hessian2 object output implementation
  */
-public class Hessian2ObjectOutput implements ObjectOutput, Cleanable {
+public class Hessian2ObjectOutput implements ObjectOutput {
 
     private static ThreadLocal<Hessian2Output> OUTPUT_TL = ThreadLocal.withInitial(() -> {
         Hessian2Output h2o = new Hessian2Output(null);
@@ -106,12 +105,5 @@ public class Hessian2ObjectOutput implements ObjectOutput, Cleanable {
 
     public OutputStream getOutputStream() throws IOException {
         return mH2o.getBytesOutputStream();
-    }
-
-    @Override
-    public void cleanup() {
-        if(mH2o != null) {
-            mH2o.reset();
-        }
     }
 }

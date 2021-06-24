@@ -118,10 +118,4 @@ public class GsonJsonObjectInput implements ObjectInput {
         String json = readLine();
         return gson.fromJson(json, cls);
     }
-
-    @Override
-    public Throwable readThrowable() throws IOException, ClassNotFoundException {
-        ExceptionWrapper obj = readObject(ExceptionWrapper.class);
-        return gson.fromJson(obj.getException().toString(), (Type) Class.forName(obj.getClazz()));
-    }
 }

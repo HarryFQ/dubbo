@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.common.serialize.hessian2;
 
-import org.apache.dubbo.common.serialize.Cleanable;
 import org.apache.dubbo.common.serialize.ObjectInput;
 import org.apache.dubbo.common.serialize.hessian2.dubbo.Hessian2FactoryInitializer;
 
@@ -29,7 +28,7 @@ import java.lang.reflect.Type;
 /**
  * Hessian2 object input implementation
  */
-public class Hessian2ObjectInput implements ObjectInput, Cleanable {
+public class Hessian2ObjectInput implements ObjectInput {
 
     private static ThreadLocal<Hessian2Input> INPUT_TL = ThreadLocal.withInitial(() -> {
         Hessian2Input h2i = new Hessian2Input(null);
@@ -109,12 +108,5 @@ public class Hessian2ObjectInput implements ObjectInput, Cleanable {
 
     public InputStream readInputStream() throws IOException {
         return mH2i.readInputStream();
-    }
-
-    @Override
-    public void cleanup() {
-        if(mH2i != null) {
-            mH2i.reset();
-        }
     }
 }

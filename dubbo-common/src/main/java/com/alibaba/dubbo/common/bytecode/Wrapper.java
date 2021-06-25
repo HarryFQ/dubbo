@@ -101,10 +101,12 @@ public abstract class Wrapper {
 
         if (c == Object.class)
             return OBJECT_WRAPPER;
-
+        // 从缓存中获取 Wrapper 实例
         Wrapper ret = WRAPPER_MAP.get(c);
         if (ret == null) {
+            // 缓存未命中，创建 Wrapper, 创建类
             ret = makeWrapper(c);
+            // 写入缓存
             WRAPPER_MAP.put(c, ret);
         }
         return ret;

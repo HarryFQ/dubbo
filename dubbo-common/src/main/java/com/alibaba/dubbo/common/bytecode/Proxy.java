@@ -66,6 +66,7 @@ public abstract class Proxy {
      * @return Proxy instance.
      */
     public static Proxy getProxy(Class<?>... ics) {
+        // 调用重载方法
         return getProxy(ClassHelper.getClassLoader(Proxy.class), ics);
     }
 
@@ -81,23 +82,26 @@ public abstract class Proxy {
             throw new IllegalArgumentException("interface limit exceeded");
 
         StringBuilder sb = new StringBuilder();
+        // 遍历接口列表
         for (int i = 0; i < ics.length; i++) {
             String itf = ics[i].getName();
+            // 检测类型是否为接口
             if (!ics[i].isInterface())
                 throw new RuntimeException(itf + " is not a interface.");
 
             Class<?> tmp = null;
             try {
+                // 重新加载接口类
                 tmp = Class.forName(itf, false, cl);
             } catch (ClassNotFoundException e) {
             }
-
+            // 检测接口是否相同，这里 tmp 有可能为空
             if (tmp != ics[i])
                 throw new IllegalArgumentException(ics[i] + " is not visible from class loader");
-
+            // 拼接接口全限定名，分隔符为 ;
             sb.append(itf).append(';');
         }
-
+        // 使用拼接后的接口名作为 key
         // use interface class name list as key.
         String key = sb.toString();
 
@@ -114,19 +118,22 @@ public abstract class Proxy {
         Proxy proxy = null;
         synchronized (cache) {
             do {
+                // 从缓存中获取 Reference<Proxy> 实例
                 Object value = cache.get(key);
                 if (value instanceof Reference<?>) {
                     proxy = (Proxy) ((Reference<?>) value).get();
                     if (proxy != null)
                         return proxy;
                 }
-
+                // 并发控制，保证只有一个线程可以进行后续操作
                 if (value == PendingGenerationMarker) {
                     try {
+                        // 其他线程在此处进行等待
                         cache.wait();
                     } catch (InterruptedException e) {
                     }
                 } else {
+                    // 放置标志位到缓存中，并跳出 while 循环进行后续操作
                     cache.put(key, PendingGenerationMarker);
                     break;
                 }
@@ -138,23 +145,28 @@ public abstract class Proxy {
         String pkg = null;
         ClassGenerator ccp = null, ccm = null;
         try {
+            // 创建 ClassGenerator 对象
             ccp = ClassGenerator.newInstance(cl);
 
             Set<String> worked = new HashSet<String>();
             List<Method> methods = new ArrayList<Method>();
 
             for (int i = 0; i < ics.length; i++) {
+                // 检测接口访问级别是否为 protected 或 private
                 if (!Modifier.isPublic(ics[i].getModifiers())) {
+                    // 获取接口包名
                     String npkg = ics[i].getPackage().getName();
                     if (pkg == null) {
                         pkg = npkg;
                     } else {
                         if (!pkg.equals(npkg))
+                            // 非 public 级别的接口必须在同一个包下，否者抛出异常
                             throw new IllegalArgumentException("non-public interfaces from different packages");
                     }
                 }
+                // 添加接口到 ClassGenerator 中
                 ccp.addInterface(ics[i]);
-
+                // 遍历接口方
                 for (Method method : ics[i].getMethods()) {
                     String desc = ReflectUtils.getDesc(method);
                     if (worked.contains(desc))
@@ -206,6 +218,7 @@ public abstract class Proxy {
         } finally {
             // release ClassGenerator
             if (ccp != null)
+                // 释放资源
                 ccp.release();
             if (ccm != null)
                 ccm.release();
@@ -213,7 +226,9 @@ public abstract class Proxy {
                 if (proxy == null)
                     cache.remove(key);
                 else
+                    // 写缓存
                     cache.put(key, new WeakReference<Proxy>(proxy));
+                // 唤醒其他等待线程
                 cache.notifyAll();
             }
         }

@@ -26,29 +26,45 @@ import java.lang.reflect.Method;
  * InvokerHandler
  */
 public class InvokerInvocationHandler implements InvocationHandler {
-
+    /**
+     * Invoker 的具体实现： MockClusterInvoker, FailOverInvoker,FailBackInvoker,FailFastInvoker,FailSafeInvoker
+     **/
     private final Invoker<?> invoker;
 
     public InvokerInvocationHandler(Invoker<?> handler) {
         this.invoker = handler;
     }
 
+    /**
+     * TODO 代理类代理ref(业务逻辑的接口)，进行远程调用
+     * @param proxy  ref 的代理
+     * @param method 方法
+     * @param args 参数
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();
         Class<?>[] parameterTypes = method.getParameterTypes();
+
+        // 拦截定义在 Object 类中的方法（未被子类重写），比如 wait/notify
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
+        // 如果 toString、hashCode 和 equals 等方法被子类重写了，这里也直接调用
         if ("toString".equals(methodName) && parameterTypes.length == 0) {
             return invoker.toString();
         }
+        // 如果 toString、hashCode 和 equals 等方法被子类重写了，这里也直接调用
         if ("hashCode".equals(methodName) && parameterTypes.length == 0) {
             return invoker.hashCode();
         }
+
         if ("equals".equals(methodName) && parameterTypes.length == 1) {
             return invoker.equals(args[0]);
         }
+        // 将 method 和 args 封装到 RpcInvocation 中，并执行后续的调用
         return invoker.invoke(new RpcInvocation(method, args)).recreate();
     }
 

@@ -25,6 +25,8 @@ import com.alibaba.dubbo.remoting.Decodeable;
 import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.exchange.Request;
 import com.alibaba.dubbo.remoting.exchange.Response;
+import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchangeHandler;
+import com.alibaba.dubbo.remoting.transport.dispatcher.all.AllChannelHandler;
 
 public class DecodeHandler extends AbstractChannelHandlerDelegate {
 
@@ -34,26 +36,42 @@ public class DecodeHandler extends AbstractChannelHandlerDelegate {
         super(handler);
     }
 
+    /**
+     * {@link AllChannelHandler#received(com.alibaba.dubbo.remoting.Channel, java.lang.Object) } 就收来自网络层的各个事件，
+     * 事件消息后分派到各个线程池{@link com.alibaba.dubbo.remoting.transport.dispatcher.ChannelEventRunnable#run() } 然后switch 各个事件的具体解码，处理逻辑，然后调用服务层
+     * @param channel
+     * @param message
+     * @throws RemotingException
+     */
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         if (message instanceof Decodeable) {
+            // 对 Decodeable 接口实现类对象进行解码
             decode(message);
         }
 
         if (message instanceof Request) {
+            // 对 Request 的 data 字段进行解码
             decode(((Request) message).getData());
         }
 
         if (message instanceof Response) {
+            // 对 Request 的 result 字段进行解码
             decode(((Response) message).getResult());
         }
-
+        /**
+         * {@link HeaderExchangeHandler#received(com.alibaba.dubbo.remoting.Channel, java.lang.Object)} 继续处理
+         */
+        // 执行后续逻辑
         handler.received(channel, message);
     }
 
     private void decode(Object message) {
+        // Decodeable 接口目前有两个实现类，
+        // 分别为 DecodeableRpcInvocation 和 DecodeableRpcResult
         if (message != null && message instanceof Decodeable) {
             try {
+                // 执行解码逻辑
                 ((Decodeable) message).decode();
                 if (log.isDebugEnabled()) {
                     log.debug("Decode decodeable message " + message.getClass().getName());

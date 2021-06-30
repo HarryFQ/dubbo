@@ -21,6 +21,10 @@ import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.remoting.Channel;
 import com.alibaba.dubbo.remoting.ChannelHandler;
 
+/**
+ * <a href="https://dubbo.apache.org/zh/docs/v2.7/dev/source/service-invoking-process/#2322-%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1"> 实际分配逻辑有多线程进行执行 </a>
+ * TODO 服务调用的中转站
+ */
 public class ChannelEventRunnable implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ChannelEventRunnable.class);
 
@@ -52,14 +56,20 @@ public class ChannelEventRunnable implements Runnable {
 
     @Override
     public void run() {
+        // 检测通道状态，对于请求或响应消息，此时 state = RECEIVED
         if (state == ChannelState.RECEIVED) {
             try {
+                /**
+                 * {@link com.alibaba.dubbo.remoting.transport.DecodeHandler#received(com.alibaba.dubbo.remoting.Channel, java.lang.Object)}
+                 */
+                // 将 channel 和 message 传给 ChannelHandler 对象，进行后续的调用
                 handler.received(channel, message);
             } catch (Exception e) {
                 logger.warn("ChannelEventRunnable handle " + state + " operation error, channel is " + channel
                         + ", message is " + message, e);
             }
         } else {
+            // 其他消息类型通过 switch 进行处理
             switch (state) {
             case CONNECTED:
                 try {
@@ -68,6 +78,7 @@ public class ChannelEventRunnable implements Runnable {
                     logger.warn("ChannelEventRunnable handle " + state + " operation error, channel is " + channel, e);
                 }
                 break;
+
             case DISCONNECTED:
                 try {
                     handler.disconnected(channel);

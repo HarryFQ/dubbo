@@ -32,12 +32,19 @@ import com.alibaba.dubbo.rpc.support.MockInvoker;
 
 import java.util.List;
 
+/**
+ * 装饰器模式
+ * @param <T>
+ */
 public class MockClusterInvoker<T> implements Invoker<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(MockClusterInvoker.class);
-
+    /**
+     * <a href="https://dubbo.apache.org/zh/docs/v2.7/dev/source/cluster/">集群容错</a>
+     * {@link com.alibaba.dubbo.registry.integration.RegistryDirectory}
+     */
     private final Directory<T> directory;
-
+    // 其他的Invoker 比如： FailOverInvoker,FailBackInvoker,FailFastInvoker,FailSafeInvoker
     private final Invoker<T> invoker;
 
     public MockClusterInvoker(Directory<T> directory, Invoker<T> invoker) {
@@ -68,20 +75,24 @@ public class MockClusterInvoker<T> implements Invoker<T> {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         Result result = null;
-
+        // todo 获取集群中配置的mock 的值
         String value = directory.getUrl().getMethodParameter(invocation.getMethodName(), Constants.MOCK_KEY, Boolean.FALSE.toString()).trim();
         if (value.length() == 0 || value.equalsIgnoreCase("false")) {
-            //no mock
+            //no mock 无 mock 逻辑，直接调用其他 Invoker 对象的 invoke 方法，
+            // 比如 FailoverClusterInvoker
             result = this.invoker.invoke(invocation);
         } else if (value.startsWith("force")) {
             if (logger.isWarnEnabled()) {
                 logger.info("force-mock: " + invocation.getMethodName() + " force-mock enabled , url : " + directory.getUrl());
             }
             //force:direct mock
+            // force:xxx 直接执行 mock 逻辑，不发起远程调用
             result = doMockInvoke(invocation, null);
         } else {
             //fail-mock
+            // fail:xxx 表示消费方对调用服务失败后，再执行 mock 逻辑，不抛出异常
             try {
+                // 调用其他 Invoker 对象的 invoke 方法
                 result = this.invoker.invoke(invocation);
             } catch (RpcException e) {
                 if (e.isBiz()) {
@@ -90,6 +101,7 @@ public class MockClusterInvoker<T> implements Invoker<T> {
                     if (logger.isWarnEnabled()) {
                         logger.warn("fail-mock: " + invocation.getMethodName() + " fail-mock enabled , url : " + directory.getUrl(), e);
                     }
+                    // 调用失败，执行 mock 逻辑
                     result = doMockInvoke(invocation, e);
                 }
             }
@@ -97,18 +109,27 @@ public class MockClusterInvoker<T> implements Invoker<T> {
         return result;
     }
 
+    /**
+     * 执行 Mock 逻辑
+     * @param invocation
+     * @param e
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Result doMockInvoke(Invocation invocation, RpcException e) {
         Result result = null;
         Invoker<T> minvoker;
-
+        // 获取Invoker 对象列表
         List<Invoker<T>> mockInvokers = selectMockInvoker(invocation);
         if (mockInvokers == null || mockInvokers.isEmpty()) {
+            // 根据mock 中配置的获取对应的Mock
             minvoker = (Invoker<T>) new MockInvoker(directory.getUrl());
         } else {
+            // 获取远程中的随机一个mock.
             minvoker = mockInvokers.get(0);
         }
         try {
+            // 执行mock 逻辑
             result = minvoker.invoke(invocation);
         } catch (RpcException me) {
             if (me.isBiz()) {
@@ -135,6 +156,9 @@ public class MockClusterInvoker<T> implements Invoker<T> {
      * Contract：
      * directory.list() will return a list of normal invokers if Constants.INVOCATION_NEED_MOCK is present in invocation, otherwise, a list of mock invokers will return.
      * if directory.list() returns more than one mock invoker, only one of them will be used.
+     *
+     * 如果调用中存在 Constants.INVOCATION_NEED_MOCK，directory.list() 将返回一个普通调用者列表，否则，将返回一个模拟调用者列表。
+     * 如果 directory.list() 返回多个模拟调用程序，则只会使用其中之一。
      *
      * @param invocation
      * @return

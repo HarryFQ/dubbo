@@ -50,7 +50,7 @@ import java.io.InputStream;
  */
 public class ExchangeCodec extends TelnetCodec {
 
-    // header length.
+    // 消息头长度
     protected static final int HEADER_LENGTH = 16;
     // magic header.
     protected static final short MAGIC = (short) 0xdabb;
@@ -70,25 +70,47 @@ public class ExchangeCodec extends TelnetCodec {
     @Override
     public void encode(Channel channel, ChannelBuffer buffer, Object msg) throws IOException {
         if (msg instanceof Request) {
+            // 对 Request 对象进行编码
             encodeRequest(channel, buffer, (Request) msg);
         } else if (msg instanceof Response) {
+            // 对 Response 对象进行编码，后面分析
             encodeResponse(channel, buffer, (Response) msg);
         } else {
             super.encode(channel, buffer, msg);
         }
     }
 
+    /**
+     * TODO server 端接受消息时解码逻辑
+     * @param channel
+     * @param buffer
+     * @return
+     * @throws IOException
+     */
     @Override
     public Object decode(Channel channel, ChannelBuffer buffer) throws IOException {
         int readable = buffer.readableBytes();
+        // 创建消息头字节数组
         byte[] header = new byte[Math.min(readable, HEADER_LENGTH)];
+        // 读取消息头数据
         buffer.readBytes(header);
+        // 调用重载方法进行后续解码工作
         return decode(channel, buffer, readable, header);
     }
 
+    /**
+     * 服务端解码逻辑
+     * @param channel
+     * @param buffer
+     * @param readable
+     * @param header
+     * @return
+     * @throws IOException
+     */
     @Override
     protected Object decode(Channel channel, ChannelBuffer buffer, int readable, byte[] header) throws IOException {
         // check magic number.
+        // 检查魔数是否相等
         if (readable > 0 && header[0] != MAGIC_HIGH
                 || readable > 1 && header[1] != MAGIC_LOW) {
             int length = header.length;
@@ -103,18 +125,22 @@ public class ExchangeCodec extends TelnetCodec {
                     break;
                 }
             }
+            // 通过 telnet 命令行发送的数据包不包含消息头，所以这里
+            // 调用 TelnetCodec 的 decode 方法对数据包进行解码
             return super.decode(channel, buffer, readable, header);
         }
-        // check length.
+        // 检测可读数据量是否少于消息头长度，若小于则立即返回 DecodeResult.NEED_MORE_INPUT
         if (readable < HEADER_LENGTH) {
             return DecodeResult.NEED_MORE_INPUT;
         }
 
-        // get data length.
+        // 从消息头中获取消息体长度
         int len = Bytes.bytes2int(header, 12);
+        // 检测消息体长度是否超出限制，超出则抛出异常
         checkPayload(channel, len);
 
         int tt = len + HEADER_LENGTH;
+        // 检测可读的字节数是否小于实际的字节数
         if (readable < tt) {
             return DecodeResult.NEED_MORE_INPUT;
         }
@@ -123,6 +149,7 @@ public class ExchangeCodec extends TelnetCodec {
         ChannelBufferInputStream is = new ChannelBufferInputStream(buffer, len);
 
         try {
+            // 解码消息体，实际业务逻辑数据
             return decodeBody(channel, is, header);
         } finally {
             if (is.available() > 0) {
@@ -216,6 +243,14 @@ public class ExchangeCodec extends TelnetCodec {
         return req.getData();
     }
 
+    /**
+     * TODO 发送消息，组装编码成消息体
+     * <a href="https://dubbo.apache.org/zh/docs/v2.7/dev/source/service-invoking-process/#222-%E8%AF%B7%E6%B1%82%E7%BC%96%E7%A0%81"></a>
+     * @param channel
+     * @param buffer
+     * @param req
+     * @throws IOException
+     */
     protected void encodeRequest(Channel channel, ChannelBuffer buffer, Request req) throws IOException {
         Serialization serialization = getSerialization(channel);
         // header.
@@ -240,6 +275,7 @@ public class ExchangeCodec extends TelnetCodec {
         if (req.isEvent()) {
             encodeEventData(channel, out, req.getData());
         } else {
+            // Request 对象的 data 字段序列化过程
             encodeRequestData(channel, out, req.getData(), req.getVersion());
         }
         out.flushBuffer();
@@ -252,7 +288,7 @@ public class ExchangeCodec extends TelnetCodec {
         checkPayload(channel, len);
         Bytes.int2bytes(len, header, 12);
 
-        // write
+        // write 写入到缓存中
         buffer.writerIndex(savedWriteIndex);
         buffer.writeBytes(header); // write header.
         buffer.writerIndex(savedWriteIndex + HEADER_LENGTH + len);

@@ -41,6 +41,9 @@ import static com.alibaba.dubbo.common.Constants.SERIALIZATION_ID_KEY;
 import static com.alibaba.dubbo.common.Constants.SERIALIZATION_SECURITY_CHECK_KEY;
 import static com.alibaba.dubbo.rpc.protocol.dubbo.CallbackServiceCodec.decodeInvocationArgument;
 
+/**
+ * 将诸如 path、version、调用方法名、参数列表等信息依次解析出来
+ */
 public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Decodeable {
 
     private static final Logger log = LoggerFactory.getLogger(DecodeableRpcInvocation.class);
@@ -65,6 +68,10 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
         this.serializationType = id;
     }
 
+    /**
+     * 将诸如 path、version、调用方法名、参数列表等信息依次解析出来
+     * @throws Exception
+     */
     @Override
     public void decode() throws Exception {
         if (!hasDecoded && channel != null && inputStream != null) {

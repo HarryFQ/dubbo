@@ -59,6 +59,12 @@ public class HeartbeatHandler extends AbstractChannelHandlerDelegate {
         handler.sent(channel, message);
     }
 
+    /**
+     * TODO 服务消费者调用逻辑
+     * @param channel
+     * @param message
+     * @throws RemotingException
+     */
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         setReadTimestamp(channel);

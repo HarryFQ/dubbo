@@ -105,6 +105,7 @@ public class DubboProtocol extends AbstractProtocol {
                 }
                 // 通过 Invoker 调用具体的服务
                 RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
+                // AbstractProxyInvoker
                 return invoker.invoke(inv);
             }
             throw new RemotingException(channel, "Unsupported request: "

@@ -67,7 +67,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
     }
 
     /**
-     * 处理请求和响应消息，这里的 message 变量类型可能是 Request，也可能是 Response
+     * TODO 处理请求和响应消息，这里的 message 变量类型可能是 Request，也可能是 Response
      */
     @Override
     public void received(Channel channel, Object message) throws RemotingException {

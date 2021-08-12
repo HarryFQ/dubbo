@@ -77,6 +77,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     Response handleRequest(ExchangeChannel channel, Request req) throws RemotingException {
         Response res = new Response(req.getId(), req.getVersion());
+        // 检测请求是否合法，不合法则返回状态码为 BAD_REQUEST 的响应
         if (req.isBroken()) {
             Object data = req.getData();
 
@@ -85,19 +86,24 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
             else if (data instanceof Throwable) msg = StringUtils.toString((Throwable) data);
             else msg = data.toString();
             res.setErrorMessage("Fail to decode request due to: " + msg);
+            // 设置 BAD_REQUEST 状态
             res.setStatus(Response.BAD_REQUEST);
 
             return res;
         }
         // find handler by message class.
+        // 获取 data 字段值，也就是 RpcInvocation 对象
         Object msg = req.getData();
         try {
             // 继续向下调用
             Object result = handler.reply(channel, msg);
+            // 设置 OK 状态码
             res.setStatus(Response.OK);
+            // 设置调用结果
             res.setResult(result);
         } catch (Throwable e) {
             res.setStatus(Response.SERVICE_ERROR);
+            // 若调用过程出现异常，则设置 SERVICE_ERROR，表示服务端异常
             res.setErrorMessage(StringUtils.toString(e));
         }
         return res;
@@ -159,7 +165,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
     }
 
     /**
-     * 在DecodeHandler 后继续进一步处理
+     * TODO 在DecodeHandler 后继续进一步处理
      * @param channel channel.
      * @param message message.
      * @throws RemotingException

@@ -62,7 +62,7 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
 
     @Override
     public ResponseFuture request(Object request) throws RemotingException {
-        // 直接调用被装饰对象的同签名方法
+        //TODO 直接调用被装饰对象的同签名方法
         return client.request(request);
     }
 
@@ -83,7 +83,7 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
 
     @Override
     public ResponseFuture request(Object request, int timeout) throws RemotingException {
-        // 直接调用被装饰对象的同签名方法
+        //TODO 直接调用被装饰对象的同签名方法
         return client.request(request, timeout);
     }
 
@@ -191,7 +191,7 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
     public boolean isClosed() {
         return client.isClosed();
     }
-
+    /** 引用计数自增，该方法由外部调用 */
     public void incrementAndGetCount() {
         refenceCount.incrementAndGet();
     }

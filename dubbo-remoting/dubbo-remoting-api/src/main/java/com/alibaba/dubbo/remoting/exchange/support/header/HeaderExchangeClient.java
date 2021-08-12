@@ -76,8 +76,7 @@ public class HeaderExchangeClient implements ExchangeClient {
 
     @Override
     public ResponseFuture request(Object request) throws RemotingException {
-
-        // 直接 HeaderExchangeChannel 对象的同签名方法
+        // TODO 直接 HeaderExchangeChannel 对象的同签名方法
         return channel.request(request);
     }
 
@@ -93,7 +92,7 @@ public class HeaderExchangeClient implements ExchangeClient {
 
     @Override
     public ResponseFuture request(Object request, int timeout) throws RemotingException {
-        // 直接 HeaderExchangeChannel 对象的同签名方法
+        // TODO 直接 HeaderExchangeChannel 对象的同签名方法
         return channel.request(request, timeout);
     }
 

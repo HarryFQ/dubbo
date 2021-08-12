@@ -303,7 +303,8 @@ public class RegistryProtocol implements Protocol {
     }
 
     /**
-     * 注册中心获取invoker
+     * 获取注册中心
+     * 将url 转化为Map
      * @param type Service class
      * @param url  URL address for the remote service
      * @param <T>

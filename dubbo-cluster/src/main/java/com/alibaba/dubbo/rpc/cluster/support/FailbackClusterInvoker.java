@@ -43,7 +43,8 @@ import java.util.concurrent.TimeUnit;
  * Especially useful for services of notification.
  *
  * <a href="http://en.wikipedia.org/wiki/Failback">Failback</a>
- *
+ * TODO  容错方式-失败安全
+ *  会在调用失败后，返回一个空结果给服务消费者。并通过定时任务对失败的调用进行重传，适合执行消息通知等操作。
  */
 public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
@@ -96,6 +97,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
             Invocation invocation = entry.getKey();
             Invoker<?> invoker = entry.getValue();
             try {
+                // 对失败的进行重试
                 invoker.invoke(invocation);
                 failed.remove(invocation);
             } catch (Throwable e) {
@@ -108,12 +110,16 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
     protected Result doInvoke(Invocation invocation, List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
         try {
             checkInvokers(invokers, invocation);
+            // 选择 Invoker
             Invoker<T> invoker = select(loadbalance, invocation, invokers, null);
+            // 执行Invoker
             return invoker.invoke(invocation);
         } catch (Throwable e) {
             logger.error("Failback to invoke method " + invocation.getMethodName() + ", wait for retry in background. Ignored exception: "
                     + e.getMessage() + ", ", e);
+            // 添加到失败 的map 中
             addFailed(invocation, this);
+            // 返回空结果
             return new RpcResult(); // ignore
         }
     }

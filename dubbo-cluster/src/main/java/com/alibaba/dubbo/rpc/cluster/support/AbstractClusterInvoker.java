@@ -267,7 +267,10 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
     }
 
     /**
-     * 调用开始
+     * TODO 调用入口开始 主要做三件事：
+     *  第一件事： 调用Directory.list() 方法获取Invoker 列表，
+     *  第二件事： 使用SPI 机制获取负载均衡器
+     *  第三件事： 执行Invoker
      * @param invocation
      * @return
      * @throws RpcException
@@ -283,7 +286,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         if (contextAttachments != null && contextAttachments.size() != 0) {
             ((RpcInvocation) invocation).addAttachments(contextAttachments);
         }
-        // 列举 Invoker,回调用 Directory 的list 接口 获取invoker列表
+        // 列举 Invoker,会调用 Directory 的list 接口 获取invoker列表
         List<Invoker<T>> invokers = list(invocation);
         if (invokers != null && !invokers.isEmpty()) {
             // SPI 机制 加载 LoadBalance
@@ -324,6 +327,12 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
     protected abstract Result doInvoke(Invocation invocation, List<Invoker<T>> invokers,
                                        LoadBalance loadbalance) throws RpcException;
 
+    /**
+     * 调用{@link Directory#list(com.alibaba.dubbo.rpc.Invocation)}
+     * @param invocation
+     * @return
+     * @throws RpcException
+     */
     protected List<Invoker<T>> list(Invocation invocation) throws RpcException {
         // 调用 Directory 的 list 方法列举 Invoker
         List<Invoker<T>> invokers = directory.list(invocation);

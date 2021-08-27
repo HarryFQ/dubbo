@@ -25,7 +25,7 @@ import java.util.Random;
 
 /**
  * random load balance.
- *
+ * TODO 基于权重随机算法
  */
 public class RandomLoadBalance extends AbstractLoadBalance {
 

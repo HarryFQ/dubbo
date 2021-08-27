@@ -33,7 +33,8 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Round robin load balance.
  * 
- * Smoothly round robin's implementation @since 2.6.5 
+ * Smoothly round robin's implementation @since 2.6.5
+ * TODO 基于加权轮询算法
  */
 public class RoundRobinLoadBalance extends AbstractLoadBalance {
     public static final String NAME = "roundrobin";

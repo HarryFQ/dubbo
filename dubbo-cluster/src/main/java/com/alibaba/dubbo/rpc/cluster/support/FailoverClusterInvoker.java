@@ -40,7 +40,7 @@ import java.util.Set;
  * Note that retry causes latency.
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Failover">Failover</a>
- *
+ * TODO 容错方式 - 灾备
  */
 public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
@@ -50,6 +50,20 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
         super(directory);
     }
 
+    /**
+     * todo 主要步骤：
+     *  1. 获取重试次数
+     *  2. 检查Invoker 列表
+     *  3. 使用负载均衡器 选择一个Invoker
+     *  4. 将当前Invoker 保存到RpcContext 中，里面有一个InternalThreadLocalMap ,将当前RpcContext 与当前线程绑定
+     *  5. 执行Invoker
+     *  6. 返回Result
+     * @param invocation
+     * @param invokers
+     * @param loadbalance
+     * @return
+     * @throws RpcException
+     */
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Result doInvoke(Invocation invocation, final List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
@@ -78,7 +92,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 // 对 copyinvokers 进行判空检查
                 checkInvokers(copyinvokers, invocation);
             }
-            // 通过负载均衡选择 Invoker
+            // 通过负载均衡选择 Invoker， 粘性，检查负载均衡器选择的Invoker 可不可用，不可用重新选择.
             Invoker<T> invoker = select(loadbalance, invocation, copyinvokers, invoked);
             invoked.add(invoker);
             // 全局InternalThreadLocal ,保存invoked.

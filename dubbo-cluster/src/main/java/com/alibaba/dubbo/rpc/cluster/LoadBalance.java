@@ -32,6 +32,9 @@ import java.util.List;
  * <a href="http://en.wikipedia.org/wiki/Load_balancing_(computing)">Load-Balancing</a>
  *
  * @see com.alibaba.dubbo.rpc.cluster.Cluster#join(Directory)
+ * TODO 因此将负载均衡到每个服务提供者上，是非常必要的。
+ *  Dubbo 提供了4种负载均衡实现，分别是基于权重随机算法的 RandomLoadBalance、基于最少活跃调用数算法的 LeastActiveLoadBalance、
+ *  基于 hash 一致性的 ConsistentHashLoadBalance，以及基于加权轮询算法的 RoundRobinLoadBalance。
  */
 @SPI(RandomLoadBalance.NAME)
 public interface LoadBalance {

@@ -95,7 +95,11 @@ public class ExtensionLoader<T> {
 
     private ExtensionLoader(Class<?> type) {
         this.type = type;
-        objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
+        objectFactory = (
+                type == ExtensionFactory.class ?
+                        null :
+                        ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension()
+        );
     }
 
     private static <T> boolean withExtensionAnnotation(Class<T> type) {
